@@ -33,3 +33,44 @@ app.get('/users', user.list);
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
+
+
+//winston
+var winston = require('winston');
+var logger = new(winston.Logger)({
+	transports: [ 
+		new winston.transports.File({ filename: './log/winston.log'})	
+	],
+	exceptionHandlers: [new winston.transports.File({filename: './log/exceptions.log'})]	
+});  
+
+global.logger = logger; 
+
+
+//long polling to Main Server
+var connectionMgr = require( './connection_mgr.js' );
+var storyCamMgr = require( './story_cam_mgr.js' );
+  
+setTimeout(function(){ 
+	connectionMgr.connectToMainServer(process.env.STAR_STORY_CAM_CONTROLLER_ID, 'STORY_CAM_CONTROLLER', function( commandID, resDataBody ){
+		
+		if (resDataBody.command == "START_RECORDING") {
+			storyCamMgr.startRecording(resDataBody.parameters.movieProjectID, function(result){
+				var answerObj = {
+					err: result.err,
+				};
+				connectionMgr.answerMainServer(commandID, answerObj);							
+			});
+		}
+		else if (resDataBody.command == "STOP_RECORDING") {
+			storyCamMgr.stopRecording( function(result){
+				var answerObj = {
+					err: result.err,
+				};
+				connectionMgr.answerMainServer(commandID, answerObj);							
+			});
+		};
+	
+	});
+}, 10);
+
