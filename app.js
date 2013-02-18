@@ -12,7 +12,7 @@ var express = require('express')
 var app = express();
 
 app.configure(function(){
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 3001);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon());
@@ -29,6 +29,12 @@ app.configure('development', function(){
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+
+//GZ
+app.get('/internal/commands', routes.command_get_cb);
+app.post('/internal/command_responses', routes.commandResponse_post_cb);
+
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
@@ -74,3 +80,13 @@ setTimeout(function(){
 	});
 }, 10);
 
+/*
+setTimeout(function(){
+	storyCamMgr = require('./story_cam_mgr.js');
+	console.log('storyCamMgr.startRecording()');
+	storyCamMgr.startRecording('greeting-50ee77e2fc4d981408000014-20130207T014253670Z', function(resParametes){
+		console.log('started recording. Response:');
+		console.dir(resParametes);
+	});
+}, 5000);
+*/
