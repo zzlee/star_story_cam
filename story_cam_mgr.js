@@ -10,9 +10,36 @@ var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding
 
 	var projectDir = path.join(workingPath, 'public/story_movies', miixMovieProjectID);
 	var sourcePath;
-	var targetPath = path.join(projectDir, miixMovieProjectID+'__story.mp4');
+	var targetPath = path.join(projectDir, miixMovieProjectID+'__story_raw.mp4');
 	
 	var avcToH264 = function(source, target, finishTranscoding_cb) {
+			var spawn = require('child_process').spawn;
+			var cp    = spawn('mencoder',[source, '-speed', '2', '-ovc', 'copy', '-o',target]);
+			
+			
+			cp.stdout.on('data', function (data) {
+				//console.log('stdout: ' + data);
+			});
+
+			cp.stderr.on('data', function (errData) {
+				//console.log('stderr: ' + errData);
+			});
+
+			cp.on('exit', function (code) {
+			
+				fs.exists(targetPath, function (exists) {
+					if (finishTranscoding_cb ) {
+						if (exists) {
+							finishTranscoding_cb(null);
+						}		
+						else {
+							finishTranscoding_cb('Fail to transform avc to H264');
+						}
+					}							
+				});
+			});
+	
+	
 	
 	}
 	
@@ -94,4 +121,6 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 module.exports = storyCamMgr;
 
 //test 
-//transfromMovieFromAvcToH264('greeting-50ee77e2fc4d981408000014-20130207T014253670Z');
+transfromMovieFromAvcToH264('greeting-50ee77e2fc4d981408000014-20130207T014253670Z', function(err){
+	console.log('transfromMovieFromAvcToH264() err= %s', err);
+});
