@@ -1,10 +1,59 @@
 storyCamMgr = {};
 
+var fs = require('fs');
+var path = require('path');
+var workingPath = process.env.STAR_STORY_CAM_CONTROLLER_PROJECT;
+
 var connectionHandler = require('./routes/connection_handler.js');
+
+var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding_cb) {
+
+	var projectDir = path.join(workingPath, 'public/story_movies', miixMovieProjectID);
+	var sourcePath;
+	var targetPath = path.join(projectDir, miixMovieProjectID+'__story.mp4');
+	
+	var avcToH264 = function(source, target, finishTranscoding_cb) {
+	
+	}
+	
+	fs.readdir( projectDir, function(err, files){
+		var avcFile = null;
+		if (err) {
+			if (finishTranscoding_cb) {
+				finishTranscoding_cb(err);
+			}
+		}
+		else {
+			for (var i in files) {
+				if ( files[i].split('.').pop() == 'avc' ) {
+					avcFile = files[i];
+				}
+			}
+			
+			if ( avcFile == null ) {
+				if (finishTranscoding_cb) {
+					finishTranscoding_cb('No avc file exists!');
+				}
+			}
+			else {
+				sourcePath = path.join(projectDir, avcFile);
+				console.log( 'sourcePath= %s', sourcePath);
+				avcToH264( sourcePath, targetPath, function(err2){
+					if (finishTranscoding_cb) {
+						finishTranscoding_cb(err2);
+					}
+				});
+			}
+		}
+		
+	});
+
+}
 
 storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb ) {
 
 	console.log("story cam starts recording");
+	storyCamMgr.currentStoryMoive = miixMovieProjectID;
 	
 	var storyCamID = 'browser_controlling_cam_0';
 
@@ -30,12 +79,19 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 	var commandParameters = null;
 	
 	connectionHandler.sendRequestToRemote( storyCamID, { command: "STOP_RECORDING", parameters: commandParameters }, function(responseParameters) {
-		//console.dir(responseParameters);
-		if (stoppedRecording_cb )  {
-			stoppedRecording_cb(responseParameters);
-		}
+	
+		transfromMovieFromAvcToH264( storyCamMgr.currentStoryMoive, function(err) {
+			//console.dir(responseParameters);
+			if (stoppedRecording_cb )  {
+				stoppedRecording_cb(responseParameters);
+			}
+		});
+	
 	});
 	
 }
 
 module.exports = storyCamMgr;
+
+//test 
+//transfromMovieFromAvcToH264('greeting-50ee77e2fc4d981408000014-20130207T014253670Z');

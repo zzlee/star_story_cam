@@ -1,0 +1,9 @@
+須先安裝 mencoder
+
+mencoder input.avc -speed 2 -ovc copy -o output.mp4
+
+input.avc: 來源檔
+-speed n: 加速，n 為倍速率
+-ovc codec: 編碼方式，codec 為編碼技術
+-oac codec: 編碼方式，codec 為編碼技術
+-o output.mp4: 輸出，output.mp4 為輸出目標檔
