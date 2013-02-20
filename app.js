@@ -56,6 +56,7 @@ global.logger = logger;
 //long polling to Main Server
 var connectionMgr = require( './connection_mgr.js' );
 var storyCamMgr = require( './story_cam_mgr.js' );
+var ftpMgr = require( './ftp_mgr.js' );
   
 setTimeout(function(){ 
 	connectionMgr.connectToMainServer(process.env.STAR_STORY_CAM_CONTROLLER_ID, 'STORY_CAM_CONTROLLER', function( commandID, resDataBody ){
@@ -74,6 +75,15 @@ setTimeout(function(){
 					err: result.err,
 				};
 				connectionMgr.answerMainServer(commandID, answerObj);							
+			});
+		}	
+		else if (resDataBody.command == "UPLOAD_STORY_MOVIE_TO_MAIN_SERVER") {
+			ftpMgr.uploadStoryMovieToMainServer(resDataBody.parameters.movieProjectID, function(result){
+				answerObj = {
+					err: result.err,
+					file_size: result.fileSize
+				};
+				connectionMgr.answerMainServer(commandID, answerObj);
 			});
 		};
 	

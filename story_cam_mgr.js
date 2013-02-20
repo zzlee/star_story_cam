@@ -120,7 +120,10 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 
 module.exports = storyCamMgr;
 
+/*
 //test 
 transfromMovieFromAvcToH264('greeting-50ee77e2fc4d981408000014-20130207T014253670Z', function(err){
 	console.log('transfromMovieFromAvcToH264() err= %s', err);
 });
+
+*/

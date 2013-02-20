@@ -11,7 +11,7 @@ var ftpUserPSW = process.env.STAR_FTP_PSW;
 var ftpServer = url.parse(process.env.HOST_STAR_SERVER).host;
 
 ftpMgr.uploadStoryMovieToMainServer = function(movieProjectID, uploadFinished_cb) {
-	var storyMoviePath = path.join(workingPath, 'public/story_movies', movieProjectID+'__story.mp4');
+	var storyMoviePath = path.join(workingPath, 'public/story_movies', movieProjectID, movieProjectID+'__story.mp4');
 
 	var ftpContent ='';
 	ftpContent += ftpUserID+'\n';
