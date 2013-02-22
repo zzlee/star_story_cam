@@ -12,7 +12,7 @@ connectionMgr.answerMainServer = function( commandID, answerObj, cb ){
 		//url: "/internal/command_responses",
 		url: ajaxURL,
 		type: "POST",
-		headers:  answerObj
+		data:  answerObj
 	}).done( function (chunk) {
 		//console.log('BODY: ');
 		//console.dir(chunk);

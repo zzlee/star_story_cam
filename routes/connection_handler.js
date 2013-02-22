@@ -6,8 +6,8 @@ var eventEmitter = new events.EventEmitter();
 
 connectionHandler.commandResponse_post_cb = function(req, res) {
 
-	var commandID = req.headers._command_id;
-	var responseParameters = req.headers
+	var commandID = req.body._command_id;
+	var responseParameters = req.body
 
 	eventEmitter.emit('RESPONSE_'+commandID, responseParameters);
 	logger.info('Got response ' + commandID + 'from ' + this.name + ' :' );
