@@ -1,6 +1,6 @@
 connectionMgr = {};
 
-var serverURL = 'http://192.168.5.112:3001';
+var serverURL = 'http://localhost:3001';
 jQuery.support.cors = true;
 
 connectionMgr.answerMainServer = function( commandID, answerObj, cb ){

@@ -10,11 +10,17 @@ connectionMgr.answerMainServer = function( commandID, answerObj, cb ){
 	answerObj._command_id = commandID;
 	var options = {
 		host: url.parse(starServerURL).hostname,
-		port: url.parse(starServerURL).port,
 		headers: answerObj,
 		path: '/internal/command_responses',
 		method: 'POST'
 	};
+	var port = url.parse(starServerURL).port;
+	if (port) {
+		options.port = port;
+	}
+	else {
+		options.port = 80;
+	}
 
 	var httpReqToAnswerServer = http.request(options, function(res) {
 		logger.info('STATUS: ' + res.statusCode);

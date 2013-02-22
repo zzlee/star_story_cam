@@ -45,8 +45,8 @@ connectionHandler.command_get_cb = function(req, res) {
 		messageToRemote.type = "LONG_POLLING_TIMEOUT";
 		messageToRemote.body = null;
 		res.send(messageToRemote);
-	//}, 60000);	
-	}, 5000);	
+	}, 60000);	
+	//}, 5000);	
 	
 	eventEmitter.once('COMMAND_'+req.headers.remote_id, callback);	
 }
