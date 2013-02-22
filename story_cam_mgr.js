@@ -108,10 +108,19 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 	connectionHandler.sendRequestToRemote( storyCamID, { command: "STOP_RECORDING", parameters: commandParameters }, function(responseParameters) {
 	
 		transfromMovieFromAvcToH264( storyCamMgr.currentStoryMoive, function(err) {
-			//console.dir(responseParameters);
-			if (stoppedRecording_cb )  {
-				stoppedRecording_cb(responseParameters);
-			}
+			//JF
+			var miixMovieProjectID = storyCamMgr.currentStoryMoive;
+			var source =  path.join(workingPath, 'public/story_movies', miixMovieProjectID, miixMovieProjectID+'__story_raw.mp4');
+			var target =  path.join(workingPath, 'public/story_movies', miixMovieProjectID, miixMovieProjectID+'__story.avi');
+
+			var qrcode = require('./routes/trimStoryMoive.js');
+		    qrcode.trimStoryMovie(source, target, 48, function(err, message) {
+				//console.dir(responseParameters);
+				if (stoppedRecording_cb )  {
+					stoppedRecording_cb(responseParameters);
+				}
+			});
+			
 		});
 	
 	});
