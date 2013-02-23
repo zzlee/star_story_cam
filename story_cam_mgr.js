@@ -117,7 +117,8 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 
 		    qrcode.trimStoryMovie(source, target, 48, function(err, message) {
 				//console.dir(responseParameters);
-				console.log(message);
+				if(err) logger.info(new Date() + ' {' + err + ' : ' + message + '}');
+				else logger.info('Save to: ' + target);
 				if (stoppedRecording_cb )  {
 					stoppedRecording_cb(responseParameters);
 				}

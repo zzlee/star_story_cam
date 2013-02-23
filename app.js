@@ -7,7 +7,8 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , fs = require('fs');
 
 var app = express();
 
@@ -43,6 +44,10 @@ http.createServer(app).listen(app.get('port'), function(){
 
 //winston
 var winston = require('winston');
+
+//JF
+if(!fs.existsSync('./log')) fs.mkdirSync('log');
+
 var logger = new(winston.Logger)({
 	transports: [ 
 		new winston.transports.File({ filename: './log/winston.log'})	
