@@ -97,6 +97,8 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 			
 }
 
+var qrcode = require('./routes/trimStoryMoive.js');
+
 storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 
 	console.log("story cam stops recording");
@@ -113,9 +115,9 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 			var source =  path.join(workingPath, 'public/story_movies', miixMovieProjectID, miixMovieProjectID+'__story_raw.mp4');
 			var target =  path.join(workingPath, 'public/story_movies', miixMovieProjectID, miixMovieProjectID+'__story.avi');
 
-			var qrcode = require('./routes/trimStoryMoive.js');
 		    qrcode.trimStoryMovie(source, target, 48, function(err, message) {
 				//console.dir(responseParameters);
+				console.log(message);
 				if (stoppedRecording_cb )  {
 					stoppedRecording_cb(responseParameters);
 				}

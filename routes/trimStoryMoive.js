@@ -1,5 +1,6 @@
 ﻿
-var resolve = require('path').resolve;
+var resolve = require('path').resolve
+  , path = require('path');
 
 //read qrcode message : Start
 readQRcode = function(rawStoryFile, callback) {
@@ -12,12 +13,15 @@ readQRcode = function(rawStoryFile, callback) {
 		var result;
 		try{
 			result = qrcode.decode(image);
+			//console.log(result);
 			callback(result);
 		}catch(e){
+			//console.log('null');
 			callback(0);
 		}
 	}
 	image.src = resolve(__dirname, rawStoryFile);
+	//console.log(image.src);
 }
 //read qrcode message : End
 
@@ -37,8 +41,9 @@ searchKeyFrame = function(rawStoryFile, videoInfo, callback) {
 	  , qrcount = 0;
 	
 	continousDetect = function(rawStoryFile, cutTime) {
+		//console.log(i, 'next loop');
 		cutTime = i * 1001 / 30000; //frame count to time
-		child = exec('ffmpeg -i ' + resolve(__dirname, rawStoryFile) + ' -y -f image2 -ss ' + cutTime + ' -s ' + width/2 + 'x' + height/2 + ' -vframes 1 testQR.png', function(error, stdout, stderr) {
+		child = exec('ffmpeg -i ' + resolve(__dirname, rawStoryFile) + ' -y -f image2 -ss ' + cutTime + ' -s ' + width/2 + 'x' + height/2 + ' -vframes 1 D:\\nodejs_work\\star_story_cam\\routes\\testQR.png', function(error, stdout, stderr) {
 			if(error) {
 				//console.log(error.stack);
 				//console.log('Error code: '+error.code);
@@ -50,7 +55,7 @@ searchKeyFrame = function(rawStoryFile, videoInfo, callback) {
 		child.on('close', function (code) {
 			i += 1;
 			qrcount++;
-			readQRcode('testQR.png', function(next) {
+			readQRcode('D:\\nodejs_work\\star_story_cam\\routes\\testQR.png', function(next) {
 				if(continous > 30) callback(err, (i-30) * 1001 / 30000);
 				else if((next - now) == 0) {
 					//now = next;
@@ -67,8 +72,9 @@ searchKeyFrame = function(rawStoryFile, videoInfo, callback) {
 	}
 
 	check = function(rawStoryFile, cutTime) {
+		//console.log(i, 'now loop');
 		cutTime = i * 1001 / 30000; //frame count to time
-		child = exec('ffmpeg -i ' + resolve(__dirname, rawStoryFile) + ' -y -f image2 -ss ' + cutTime + ' -s ' + width/2 + 'x' + height/2 + ' -vframes 1 testQR.png', function(error, stdout, stderr) {
+		child = exec('ffmpeg -i ' + resolve(__dirname, rawStoryFile) + ' -y -f image2 -ss ' + cutTime + ' -s ' + width/2 + 'x' + height/2 + ' -vframes 1 D:\\nodejs_work\\star_story_cam\\routes\\testQR.png', function(error, stdout, stderr) {
 			if(error) {
 				//console.log(error.stack);
 				//console.log('Error code: '+error.code);
@@ -86,7 +92,7 @@ searchKeyFrame = function(rawStoryFile, videoInfo, callback) {
 				callback(err, cutTime);
 			}
 			else {
-				readQRcode('testQR.png', function(next) {
+				readQRcode('D:\\nodejs_work\\star_story_cam\\routes\\testQR.png', function(next) {
 					if((now - next) == 1) {
 						//callback(err, (i-1) * 1001 / 30000);
 						now = next;
@@ -148,7 +154,7 @@ exports.trimStoryMovie = function(rawStoryFile, outputStoryFile, storyMovieDurat
 }
 //read video information : End
 /*
-trimStoryMovie('M4H03729.MP4', 'fmTest_01.avi', 48, function(err, message) {
+trimStoryMovie('D:\\nodejs_work\\star_story_cam\\public\\story_movies\\greeting-50ee77e2fc4d981408000014-20130222T023238273Z\\greeting-50ee77e2fc4d981408000014-20130222T023238273Z__story_raw.MP4', 'fmTest_01.avi', 5, function(err, message) {
 	if(err) console.log(err);
 	else console.log('Save to: ' + resolve(__dirname, message));
 });

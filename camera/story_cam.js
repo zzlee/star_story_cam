@@ -1,4 +1,4 @@
-var projectPath = 'D:\\nodejs_projects\\star_story_cam';
+var projectPath = 'D:\\nodejs_work\\star_story_cam';
 
 storyCam = {};
 
