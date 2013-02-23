@@ -51,8 +51,8 @@ var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding
 			}
 		}
 		else {
-			for (var i in files) {
-				if ( files[i].split('.').pop() == 'avc' ) {
+			for (var i=0; i < files.length; i++) {
+				if ( files[i].toString().split('.').pop() == 'avc' ) {
 					avcFile = files[i];
 				}
 			}

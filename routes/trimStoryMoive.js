@@ -89,7 +89,7 @@ searchKeyFrame = function(rawStoryFile, videoInfo, callback) {
 			i += 1;		//next frame
 			qrcount++;
 			//if(i > (frames / 10)) {
-			if(i > 30*5) {
+			if(i > 30*5) {	//5s, 29.97 fps
 				err = 'not found Qr code';
 				callback(err, cutTime);
 			}
