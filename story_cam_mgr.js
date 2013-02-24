@@ -3,6 +3,10 @@ storyCamMgr = {};
 var fs = require('fs');
 var path = require('path');
 var workingPath = process.env.STAR_STORY_CAM_CONTROLLER_PROJECT;
+var http = require('http');
+var url = require('url');
+var starServerURL = process.env.HOST_STAR_SERVER;
+
 
 var connectionHandler = require('./routes/connection_handler.js');
 
@@ -51,8 +55,8 @@ var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding
 			}
 		}
 		else {
-			for (var i in files) {
-				if ( files[i].split('.').pop() == 'avc' ) {
+			for (var i=0; i < files.length; i++) {
+				if ( files[i].toString().split('.').pop() == 'avc' ) {
 					avcFile = files[i];
 				}
 			}
@@ -74,6 +78,50 @@ var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding
 		}
 		
 	});
+
+}
+
+var informMainServerAboutAvailableStoryMovie = function(miixMovieProjectID, finishInforming_cb) {
+	var options = {
+		host: url.parse(starServerURL).hostname,
+		headers: {miix_movie_project_id: miixMovieProjectID},
+		path: '/internal/story_cam_controller/available_story_movie',
+		method: 'POST'
+	};
+	var port = url.parse(starServerURL).port;
+	if (port) {
+		options.port = port;
+	}
+	else {
+		options.port = 80;
+	}
+
+	var httpReq = http.request(options, function(res) {
+		logger.info('STATUS: ' + res.statusCode);
+		logger.info('HEADERS: ' + JSON.stringify(res.headers));
+		res.setEncoding('utf8');
+		res.on('data', function (chunk) {
+			logger.info('BODY: ' + chunk);
+		}).on('end', function() {
+			if (finishInforming_cb) {
+				finishInforming_cb(null);
+			}
+			//logger.info('['+ movieProjectID +'] Successfully answered Star Server');
+		});
+	});
+
+	httpReq.on('error', function(e) {
+		//logger.info('['+ movieProjectID +'] Http error on answering Star Server: ' + e.message);
+		if (finishInforming_cb) {
+			finishInforming_cb(e.message);
+		}
+
+	});
+
+	// write data to request body
+	//httpReq.write( JSON.stringify(dataToAnswerServer) );
+	httpReq.end();
+
 
 }
 
@@ -117,13 +165,19 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 
 		    qrcode.trimStoryMovie(source, target, 48, function(err, message) {
 				//console.dir(responseParameters);
-				console.log(message);
-				if (stoppedRecording_cb )  {
-					stoppedRecording_cb(responseParameters);
-				}
+				if(err) logger.info(new Date() + ' {' + err + ' : ' + message + '}');
+				else logger.info('Save to: ' + target);
+				
+				//GZ
+				informMainServerAboutAvailableStoryMovie(storyCamMgr.currentStoryMoive);
 			});
 			
+			
 		});
+		
+		if (stoppedRecording_cb )  {
+			stoppedRecording_cb(responseParameters);
+		}
 	
 	});
 	
@@ -137,4 +191,16 @@ transfromMovieFromAvcToH264('greeting-50ee77e2fc4d981408000014-20130207T01425367
 	console.log('transfromMovieFromAvcToH264() err= %s', err);
 });
 
+//winston
+var winston = require('winston');
+var logger = new(winston.Logger)({
+	transports: [ 
+		new winston.transports.File({ filename: './log/winston.log'})	
+	],
+	exceptionHandlers: [new winston.transports.File({filename: './log/exceptions.log'})]	
+});  
+
+global.logger = logger; 
+
+informMainServerAboutAvailableStoryMovie('greeting-50ee77e2fc4d981408000014-20130222T023238273Z');
 */
