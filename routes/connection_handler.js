@@ -26,7 +26,7 @@ connectionHandler.sendRequestToRemote = function( targetID, reqToRemote, cb ) {
 }
 
 connectionHandler.command_get_cb = function(req, res) {
-	console.log('['+ new Date() +']Got long-polling HTTP request from remote: '+ req.headers.remote_id );
+	//console.log('['+ new Date() +']Got long-polling HTTP request from remote: '+ req.headers.remote_id );
 	logger.info('['+ new Date() +']Got long-polling HTTP request from remote: '+ req.headers.remote_id );
 	//console.dir(req);
 	

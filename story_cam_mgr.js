@@ -68,7 +68,7 @@ var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding
 			}
 			else {
 				sourcePath = path.join(projectDir, avcFile);
-				console.log( 'sourcePath= %s', sourcePath);
+				//console.log( 'sourcePath= %s', sourcePath);
 				avcToH264( sourcePath, targetPath, function(err2){
 					if (finishTranscoding_cb) {
 						finishTranscoding_cb(err2);
@@ -127,7 +127,8 @@ var informMainServerAboutAvailableStoryMovie = function(miixMovieProjectID, fini
 
 storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb ) {
 
-	console.log("story cam starts recording");
+	//console.log("story cam starts recording");
+	logger.info("story cam starts recording");
 	storyCamMgr.currentStoryMoive = miixMovieProjectID;
 	
 	var storyCamID = 'browser_controlling_cam_0';
@@ -149,7 +150,8 @@ var qrcode = require('./routes/trimStoryMoive.js');
 
 storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 
-	console.log("story cam stops recording");
+	//console.log("story cam stops recording");
+	logger.info("story cam stops recording");
 	
 	var storyCamID = 'browser_controlling_cam_0';
 

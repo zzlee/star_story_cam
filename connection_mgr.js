@@ -80,9 +80,9 @@ connectionMgr.connectToMainServer = function( remoteID, remoteType, getCommand_c
 		//logger.info('HEADERS: ' + JSON.stringify(res.headers));
 		res.setEncoding('utf8');
 		res.on('data', function (_resData) {
-			//logger.info('resData: '+_resData);
-			console.log('resData: ');
-			console.dir(_resData);
+			logger.info('resData: '+_resData);
+			//console.log('resData: ');
+			//console.dir(_resData);
 			var resData = JSON.parse(_resData);
 			if ( resData.type == "COMMAND" ) {
 				//process the command sent from Star server
@@ -96,15 +96,15 @@ connectionMgr.connectToMainServer = function( remoteID, remoteType, getCommand_c
 				
 			}			
 		}).on('end', function() {
-			//logger.info('Connection to Main Server ends');
-			console.log('Connection to Main Server ends');
+			logger.info('Connection to Main Server ends');
+			//console.log('Connection to Main Server ends');
 			connectionMgr.connectToMainServer( remoteID, remoteType, getCommand_cb);			
 		});
 	});
 
 	httpReq.on('error', function(e) {
-		//logger.error('error send http GET to Main Server; trying resending...', e);
-		console.log('error send http GET to Main Server; trying resending...', e);
+		logger.error('error send http GET to Main Server; trying resending...', e);
+		//console.log('error send http GET to Main Server; trying resending...', e);
 		connectionMgr.connectToMainServer( remoteID, remoteType, getCommand_cb);
 		/*
 		setTimeout(function(){ 
@@ -113,8 +113,8 @@ connectionMgr.connectToMainServer = function( remoteID, remoteType, getCommand_c
 		*/
 	});
 
-	//logger.info('Connection to Main Server starts');
-	console.log('Connection to Main Server starts');
+	logger.info('Connection to Main Server starts');
+	//console.log('Connection to Main Server starts');
 	httpReq.end();
 
 };
