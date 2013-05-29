@@ -2,3 +2,5 @@ log/
 temp/
 public/story_movies/
 routes/testQR.png
+system_configuration.xml
+!setup/system_configuration.xml
