@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<systemConfiguration>
+    <STAR_STORY_CAM_CONTROLLER_ID>story_cam_server</STAR_STORY_CAM_CONTROLLER_ID>
+    <FFMPEG_BIN>C:\ffmpeg\bin</FFMPEG_BIN>
+	<MENCODER_BIN>C:\mplayer</MENCODER_BIN>
+    <HOST_STAR_SERVER>http://www.feltmeng.idv.tw</HOST_STAR_SERVER>
+    <STAR_FTP_ID>miixcard</STAR_FTP_ID>
+    <STAR_FTP_PSW>53768608</STAR_FTP_PSW>
+</systemConfiguration>

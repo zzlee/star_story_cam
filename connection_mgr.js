@@ -4,7 +4,10 @@ var fs = require('fs');
 var http = require('http');
 var url = require('url');
 
-var starServerURL = process.env.HOST_STAR_SERVER;
+var starServerURL;
+require('./system_configuration.js').getInstance(function(config){
+    starServerURL = config.HOST_STAR_SERVER;
+});
 
 connectionMgr.answerMainServer = function( commandID, answerObj, cb ){
 	answerObj._command_id = commandID;

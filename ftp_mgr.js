@@ -5,10 +5,15 @@ var ftpMgr = {};
 var fs = require('fs');
 var path = require('path');
 var url=require('url');
-var workingPath = process.env.STAR_STORY_CAM_CONTROLLER_PROJECT;
-var ftpUserID = process.env.STAR_FTP_ID;
-var ftpUserPSW = process.env.STAR_FTP_PSW;
-var ftpServer = url.parse(process.env.HOST_STAR_SERVER).host;
+var workingPath = process.cwd();
+var ftpUserID;
+var ftpUserPSW;
+var ftpServer;
+require('./system_configuration.js').getInstance(function(config){
+    ftpUserID = config.STAR_FTP_ID;                     
+    ftpUserPSW = config.STAR_FTP_PSW;                   
+    ftpServer = url.parse(config.HOST_STAR_SERVER).host;
+});
 
 ftpMgr.uploadStoryMovieToMainServer = function(movieProjectID, uploadFinished_cb) {
 	var storyMoviePath = path.join(workingPath, 'public/story_movies', movieProjectID, movieProjectID+'__story.avi');

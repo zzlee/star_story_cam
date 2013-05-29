@@ -2,11 +2,13 @@ storyCamMgr = {};
 
 var fs = require('fs');
 var path = require('path');
-var workingPath = process.env.STAR_STORY_CAM_CONTROLLER_PROJECT;
+var workingPath = process.cwd();
 var http = require('http');
 var url = require('url');
-var starServerURL = process.env.HOST_STAR_SERVER;
-
+var starServerURL;
+require('./system_configuration.js').getInstance(function(config){
+    starServerURL = config.HOST_STAR_SERVER;
+});
 
 var connectionHandler = require('./routes/connection_handler.js');
 
@@ -45,7 +47,7 @@ var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding
 	
 	
 	
-	}
+	};
 	
 	fs.readdir( projectDir, function(err, files){
 		var avcFile = null;
@@ -79,7 +81,7 @@ var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding
 		
 	});
 
-}
+};
 
 var informMainServerAboutAvailableStoryMovie = function(miixMovieProjectID, finishInforming_cb) {
 	var options = {
@@ -123,7 +125,7 @@ var informMainServerAboutAvailableStoryMovie = function(miixMovieProjectID, fini
 	httpReq.end();
 
 
-}
+};
 
 storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb ) {
 
@@ -144,7 +146,7 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 		}
 	});
 			
-}
+};
 
 var qrcode = require('./routes/trimStoryMoive.js');
 
@@ -183,7 +185,7 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 	
 	});
 	
-}
+};
 
 module.exports = storyCamMgr;
 

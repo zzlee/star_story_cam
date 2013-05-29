@@ -62,9 +62,15 @@ global.logger = logger;
 var connectionMgr = require( './connection_mgr.js' );
 var storyCamMgr = require( './story_cam_mgr.js' );
 var ftpMgr = require( './ftp_mgr.js' );
-  
+
+var storyCamControllerID;
+require('./system_configuration.js').getInstance(function(config){
+    storyCamControllerID = config.STAR_STORY_CAM_CONTROLLER_ID;                               
+});
+
+
 setTimeout(function(){ 
-	connectionMgr.connectToMainServer(process.env.STAR_STORY_CAM_CONTROLLER_ID, 'STORY_CAM_CONTROLLER', function( commandID, resDataBody ){
+	connectionMgr.connectToMainServer(storyCamControllerID, 'STORY_CAM_CONTROLLER', function( commandID, resDataBody ){
 		
 		if (resDataBody.command == "START_RECORDING") {
 			storyCamMgr.startRecording(resDataBody.parameters.movieProjectID, function(result){
