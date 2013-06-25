@@ -102,6 +102,7 @@ setTimeout(function(){
 		}
         else if (resDataBody.command == "UPLOAD_STORY_MOVIE_TO_S3") {
             //upload to S3
+        	var movieProjectID = resDataBody.parameters.movieProjectID;
             var storyMovieLocalPath = path.join(workingPath, 'public/story_movies', movieProjectID, movieProjectID+'__story.avi');
             var s3Path =  '/user_project/' + movieProjectID + '/'+ movieProjectID+'__story.avi';
             //console.log('s3Path = %s', s3Path);
