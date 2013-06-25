@@ -10,6 +10,8 @@ var express = require('express')
   , path = require('path')
   , fs = require('fs');
 
+var workingPath = process.cwd();
+
 var app = express();
 
 app.configure(function(){
@@ -96,7 +98,26 @@ setTimeout(function(){
 				};
 				connectionMgr.answerMainServer(commandID, answerObj);
 			});
-		};
+		}
+        else if (resDataBody.command == "UPLOAD_STORY_MOVIE_TO_S3") {
+            //upload to S3
+            var storyMovieLocalPath = path.join(workingPath, 'public/story_movies', movieProjectID, movieProjectID+'__story.avi');
+            var s3Path =  '/user_project/' + movieProjectID + '/'+ movieProjectID+'__story.avi';
+            //console.log('s3Path = %s', s3Path);
+            awsS3.uploadToAwsS3(storyMovieLocalPath, s3Path, 'video/x-msvideo', function(err,result){
+                if (!err){
+                    logger.info('Story movie was successfully uploaded to S3 '+s3Path);
+                 }
+                else {
+                    logger.info('Story movie failed to be uploaded to S3 '+s3Path);
+                }
+                
+                answerObj = {
+                        err: err
+                };
+                connectionMgr.answerMainServer(commandID, answerObj);
+            });
+        };
 	
 	});
 }, 10);
