@@ -64,6 +64,7 @@ global.logger = logger;
 var connectionMgr = require( './connection_mgr.js' );
 var storyCamMgr = require( './story_cam_mgr.js' );
 var ftpMgr = require( './ftp_mgr.js' );
+var awsS3 = require('./aws_s3.js');
 
 var storyCamControllerID;
 require('./system_configuration.js').getInstance(function(config){
