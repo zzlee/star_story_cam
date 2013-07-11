@@ -143,7 +143,7 @@ void SaveAviHelper(
         return;
     }
 
-    printf( "\nAppending %d images to AVI file: %s ... \n", vecImages.size(), aviFileName.c_str() );
+    //printf( "\nAppending %d images to AVI file: %s ... \n", vecImages.size(), aviFileName.c_str() );
     for (int imageCnt = 0; imageCnt < vecImages.size(); imageCnt++)
     {
         // Append the image to AVI file
@@ -154,7 +154,7 @@ void SaveAviHelper(
             continue;
         }
 
-        printf("Appended image %d...\n", imageCnt);
+        //printf("Appended image %d...\n", imageCnt);
     }
 
     // Close the AVI file
@@ -166,7 +166,7 @@ void SaveAviHelper(
     }
 }
 
-int RunCamera( PGRGuid guid, int k_numImages )
+int RunCamera( PGRGuid guid, int k_numImages, char *filename )
 {
 	Error error;
 	Camera cam;
@@ -188,7 +188,7 @@ int RunCamera( PGRGuid guid, int k_numImages )
 		return -1;
 	}
 
-	PrintCameraInfo(&camInfo);
+	//PrintCameraInfo(&camInfo);
 
 	// Start capturing images
 	printf( "Starting capture... \n" );
@@ -209,14 +209,13 @@ int RunCamera( PGRGuid guid, int k_numImages )
         error = cam.RetrieveBuffer(&rawImage);
         if (error != PGRERROR_OK)
         {
-            printf("Error grabbing image %u\n", imageCnt);
+            //printf("Error grabbing image %u\n", imageCnt);
             continue;
         }
         else
         {
-            printf("Grabbed image %u\n", imageCnt);
+            //printf("Grabbed image %u\n", imageCnt);
         }
-
         vecImages[imageCnt].DeepCopy(&rawImage);
     }
 
@@ -265,8 +264,8 @@ int RunCamera( PGRGuid guid, int k_numImages )
     char aviFileName[512] = {0};
 
     //sprintf(aviFileName, "SaveImageToAviEx-h264-%u", camInfo.serialNumber);
-	sprintf(aviFileName, "miix-story-%u", camInfo.serialNumber);
-	printf("%s", aviFileName);
+	sprintf(aviFileName, "%s", filename);
+	//printf("%s", aviFileName);
     SaveAviHelper(H264, vecImages, aviFileName, frameRateToUse);
 
     // Disconnect the camera
@@ -280,10 +279,14 @@ int RunCamera( PGRGuid guid, int k_numImages )
 	return 0;
 }
 
-int main(array<System::String ^> ^args)
+//int main(array<System::String ^> ^args)
+int main(int argc, char *argv[])
 {
-	int framesNumber;
-	scanf( "%d", &framesNumber );
+	
+	int frames = 60 * atoi(argv[1]);
+	char *filename = argv[2];
+
+	//printf("%d : %s", frames, filename);
 
 	Error error;
 	BusManager busMgr;
@@ -302,13 +305,12 @@ int main(array<System::String ^> ^args)
        return -1;
     }
 
-	RunCamera( guid, framesNumber );
-
+	RunCamera( guid, frames, filename );
 
 	//printf( "Done! Press Enter to exit...\n" );
 	//getchar();
-
-	system("pause");
+	printf( "Done!\n" );
+	//system("pause");
 
     return 0;
 }
