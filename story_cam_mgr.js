@@ -5,7 +5,18 @@ var path = require('path');
 var workingPath = process.cwd();
 var http = require('http');
 var url = require('url');
+var spawn = require('child_process').spawn;
 var starServerURL;
+
+var awsS3 = require('./aws_s3.js');
+var request = require('request');
+var path = require('path');
+var exe_route = path.join(__dirname + '/FC_test32/Release/FC_test32.exe');
+var starServerURL;
+require('./system_configuration.js').getInstance(function(config){
+    starServerURL = config.HOST_STAR_SERVER;
+});
+
 require('./system_configuration.js').getInstance(function(config){
     starServerURL = config.HOST_STAR_SERVER;
 });
@@ -138,7 +149,23 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 	var commandParameters = {
 		movieProjectID: miixMovieProjectID
 	};
-	
+    
+    storyCamMgr.playTime = new Date().getTime();
+    //var recordID = miixMovieProjectID + storyCamMgr.playTime;
+
+    var PGRrecord = spawn(exe_route, ['30', storyCamMgr.playTime + '.mp4']);
+        
+    PGRrecord.on('close', function (code) {
+        //console.log('child process exited with code ' + code);
+        //move file to specify folder
+        var source = fs.createReadStream(storyCamMgr.playTime + '-0000.mp4');
+        var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story_raw.mp4');
+        source.pipe(dest);
+        source.on('end', function() { 
+            fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
+        });
+    });
+    
 	connectionHandler.sendRequestToRemote( storyCamID, { command: "START_RECORDING", parameters: commandParameters }, function(responseParameters) {
 		//console.dir(responseParameters);
 		if (startedRecording_cb )  {
@@ -164,9 +191,11 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 		transfromMovieFromAvcToH264( storyCamMgr.currentStoryMoive, function(err) {
 			//JF
 			var miixMovieProjectID = storyCamMgr.currentStoryMoive;
-			var source =  path.join(workingPath, 'public/story_movies', miixMovieProjectID, miixMovieProjectID+'__story_raw.mp4');
-			var target =  path.join(workingPath, 'public/story_movies', miixMovieProjectID, miixMovieProjectID+'__story.avi');
-
+			//var source =  path.join(workingPath, 'public/story_movies', miixMovieProjectID, miixMovieProjectID + storyCamMgr.playTime+'__story_raw.mp4');
+			//var target =  path.join(workingPath, 'public/story_movies', miixMovieProjectID, miixMovieProjectID + storyCamMgr.playTime+'__story.avi');
+            var source =  path.join(workingPath, 'public/story_movies', storyCamMgr.playTime + '__story_raw.mp4');
+            var target =  path.join(workingPath, 'public/story_movies', storyCamMgr.playTime+'__story.avi');
+            
 		    qrcode.trimStoryMovie(source, target, 48, function(err, message) {
 				//console.dir(responseParameters);
 				if(err) logger.info(new Date() + ' {' + err + ' : ' + message + '}');
@@ -174,6 +203,24 @@ storyCamMgr.stopRecording = function( stoppedRecording_cb ) {
 				
 				//GZ
 				informMainServerAboutAvailableStoryMovie(storyCamMgr.currentStoryMoive);
+                
+                //JF
+                //add upload amazon and put to star server.
+                var s3Path =  '/user_project/' + storyCamMgr.playTime + '/'+ storyCamMgr.playTime+'__story.avi';
+                awsS3.uploadToAwsS3(target, s3Path, 'video/x-msvideo', function(err,result){
+                    if (!err){
+                        logger.info('Story movie was successfully uploaded to S3 '+s3Path);
+                     }
+                    else {
+                        logger.info('Story movie failed to be uploaded to S3 '+s3Path);
+                    }
+                    
+                    answerObj = {
+                            err: err
+                    };
+                    //connectionMgr.answerMainServer(commandID, answerObj);
+                    request.put(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
+                });
 			});
 			
 			
