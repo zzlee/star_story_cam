@@ -1,3 +1,16 @@
+var exposureTime = [
+    //0-5
+    -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
+    //6-11
+    -1.0, 0.0, 0.0, 0.0, 1.0, 1.0,
+    //12-17
+    1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 
+    //18-23
+    1.0, 1.0, 0.0, -1.0, -1.0, -1.0
+];
+
+var frameRate = 30.0;
+
 storyCamMgr = {};
 
 var fs = require('fs');
@@ -183,7 +196,7 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 		storyCamMgr.playTime = new Date().getTime();
 		//console.log(storyCamMgr.playTime);
 		
-		execFile(exe_route, ['20', storyCamMgr.playTime], function(err, stdout, stderr){
+		execFile(exe_route, ['20', storyCamMgr.playTime, exposureTime[new Date(storyCamMgr.playTime).getHours()], frameRate], function(err, stdout, stderr){
 			console.log('stdout: ' + stdout);
 			console.log('stderr: ' + stderr);
 			logger.info('Record end: ' + storyCamMgr.playTime);
