@@ -6,12 +6,14 @@ var workingPath = process.cwd();
 var http = require('http');
 var url = require('url');
 var spawn = require('child_process').spawn;
+var execFile = require('child_process').execFile;
 var starServerURL;
 
 var awsS3 = require('./aws_s3.js');
 var request = require('request');
 var path = require('path');
 var exe_route = path.join(__dirname + '/FC_test32/Release/FC_test32.exe');
+var recordLimit = 0;
 var starServerURL;
 require('./system_configuration.js').getInstance(function(config){
     starServerURL = config.HOST_STAR_SERVER;
@@ -31,7 +33,7 @@ var transfromMovieFromAvcToH264 = function(miixMovieProjectID, finishTranscoding
 	
 	var avcToH264 = function(source, target, finishTranscoding_cb) {
 			var spawn = require('child_process').spawn;
-			var cp    = spawn('mencoder',[source, '-speed', '2', '-ovc', 'copy', '-o',target]);
+			var cp    = spawn('mencoder',[source, '-speed', '1', '-ovc', 'copy', '-o',target]);
 			
 			
 			cp.stdout.on('data', function (data) {
@@ -150,14 +152,25 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 		movieProjectID: miixMovieProjectID
 	};
     
-    storyCamMgr.playTime = new Date().getTime();
+	recordLimit += 1;
+    
     //var recordID = miixMovieProjectID + storyCamMgr.playTime;
+	
+	logger.info('Record start: ' + storyCamMgr.playTime);
+	/*
+    var PGRrecord = spawn(exe_route, ['20', storyCamMgr.playTime + '.mp4']);
 
-    var PGRrecord = spawn(exe_route, ['30', storyCamMgr.playTime + '.mp4']);
-        
+    PGRrecord.stdout.on('data', function (data) {
+		console.log('stdout: ' + data);
+	});
+
+	PGRrecord.stderr.on('data', function (data) {
+		console.log('stderr: ' + data);
+	});
     PGRrecord.on('close', function (code) {
         //console.log('child process exited with code ' + code);
         //move file to specify folder
+		logger.info('Record end: ' + storyCamMgr.playTime);
         var source = fs.createReadStream(storyCamMgr.playTime + '-0000.mp4');
         var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story_raw.mp4');
         source.pipe(dest);
@@ -165,7 +178,44 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
             fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
         });
     });
-    
+	*/
+	if(recordLimit == 1) {
+		storyCamMgr.playTime = new Date().getTime();
+		//console.log(storyCamMgr.playTime);
+		
+		execFile(exe_route, ['20', storyCamMgr.playTime], function(err, stdout, stderr){
+			console.log('stdout: ' + stdout);
+			console.log('stderr: ' + stderr);
+			logger.info('Record end: ' + storyCamMgr.playTime);
+			var source = fs.createReadStream(storyCamMgr.playTime + '-0000.mp4');
+			//var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story_raw.mp4');
+			var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story.avi');
+			source.pipe(dest);
+			source.on('end', function() { 
+				fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
+				recordLimit = 0;
+				
+				var target =  path.join(workingPath, 'public/story_movies', storyCamMgr.playTime+'__story.avi');
+				var s3Path =  '/camera_record/' + storyCamMgr.playTime + '/'+ storyCamMgr.playTime+'__story.avi';
+                awsS3.uploadToAwsS3(target, s3Path, 'video/x-msvideo', function(err,result){
+                    if (!err){
+                        logger.info('Story movie was successfully uploaded to S3 '+s3Path);
+                     }
+                    else {
+                        logger.info('Story movie failed to be uploaded to S3 '+s3Path);
+                    }
+                    
+                    answerObj = {
+                            err: err
+                    };
+                    //connectionMgr.answerMainServer(commandID, answerObj);
+                    request.put(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
+                });
+				
+			});
+		});
+	}
+	
 	connectionHandler.sendRequestToRemote( storyCamID, { command: "START_RECORDING", parameters: commandParameters }, function(responseParameters) {
 		//console.dir(responseParameters);
 		if (startedRecording_cb )  {

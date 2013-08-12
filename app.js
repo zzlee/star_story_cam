@@ -71,17 +71,35 @@ require('./system_configuration.js').getInstance(function(config){
     storyCamControllerID = config.STAR_STORY_CAM_CONTROLLER_ID;                               
 });
 
+var recordLimit = 0;
+var recordExecute = function(control){
+	switch(control)
+	{
+		case 'on':
+			recordLimit += 1;
+			break;
+		case 'off':
+			recordLimit = 0;
+			break;
+	}
+};
 
 setTimeout(function(){ 
 	connectionMgr.connectToMainServer(storyCamControllerID, 'STORY_CAM_CONTROLLER', function( commandID, resDataBody ){
 		
 		if (resDataBody.command == "START_RECORDING") {
-			storyCamMgr.startRecording(resDataBody.parameters.movieProjectID, function(result){
-				var answerObj = {
-					err: result.err,
-				};
-				connectionMgr.answerMainServer(commandID, answerObj);							
-			});
+			//recordExecute('on');
+			//if(recordLimit == 1){
+				storyCamMgr.startRecording(resDataBody.parameters.movieProjectID, function(result){
+					var answerObj = {
+						err: result.err,
+					};
+					connectionMgr.answerMainServer(commandID, answerObj);
+					//console.log(recordLimit);
+					//recordExecute('off');
+				});
+				
+			//}
 		}
 		else if (resDataBody.command == "STOP_RECORDING") {
 			storyCamMgr.stopRecording( function(result){
