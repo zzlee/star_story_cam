@@ -25,7 +25,7 @@ var starServerURL;
 var awsS3 = require('./aws_s3.js');
 var request = require('request');
 var path = require('path');
-var exe_route = path.join(__dirname + '/FC_test32/Release/FC_test32.exe');
+var exe_route = path.join(__dirname + '/FC_test32/x64/Release/FC_test.exe');
 var recordLimit = 0;
 var starServerURL;
 require('./system_configuration.js').getInstance(function(config){
@@ -196,7 +196,7 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 		storyCamMgr.playTime = new Date().getTime();
 		//console.log(storyCamMgr.playTime);
 		
-		execFile(exe_route, ['20', storyCamMgr.playTime, exposureTime[new Date(storyCamMgr.playTime).getHours()], frameRate], function(err, stdout, stderr){
+		execFile(exe_route, ['30', storyCamMgr.playTime, exposureTime[new Date(storyCamMgr.playTime).getHours()], frameRate], function(err, stdout, stderr){
 			console.log('stdout: ' + stdout);
 			console.log('stderr: ' + stderr);
 			logger.info('Record end: ' + storyCamMgr.playTime);
