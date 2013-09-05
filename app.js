@@ -137,7 +137,17 @@ setTimeout(function(){
                 };
                 connectionMgr.answerMainServer(commandID, answerObj);
             });
-        };
+        }
+        else if (resDataBody.command == "CONNECTION_TEST") {
+            console.log("Got the command "+resDataBody.command+" with parameters");
+            console.dir(resDataBody.parameters);            
+            
+            answerObj = {
+                testPara1: "test 1",
+                testPara2: "test 2"
+            };
+            connectionMgr.answerMainServer(commandID, answerObj);
+        }
 	
 	});
 }, 10);
