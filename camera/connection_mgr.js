@@ -3,8 +3,11 @@ connectionMgr = {};
 var serverURL = 'http://localhost:3001';
 jQuery.support.cors = true;
 
+var REMOTE_TYPE = "LOCAL_BROWSER";
+var REMOTE_ID = "browser_controlling_cam_0";
+
 connectionMgr.answerMainServer = function( commandID, answerObj, cb ){
-	answerObj._command_id = commandID;
+	answerObj._commandId = commandID;
 	
 	var ajaxURL = serverURL+"/internal/command_responses";
 	
@@ -28,12 +31,12 @@ connectionMgr.answerMainServer = function( commandID, answerObj, cb ){
 
 
 //long-polling connection to Star Server
-connectionMgr.connectToMainServer = function( remoteID, remoteType, getCommand_cb) {
+connectionMgr.connectToMainServer = function( getCommand_cb) {
 	var ajaxURL = serverURL+"/internal/commands";
 	
 	var dataToSend = {
-		remote_id: remoteID,
-		remote_type: remoteType
+		remoteId: REMOTE_ID,
+		remoteType: REMOTE_TYPE
 	};
 	
 	$.ajax({
@@ -63,7 +66,7 @@ connectionMgr.connectToMainServer = function( remoteID, remoteType, getCommand_c
 	}).always(function() {
 		//console.log('<always>Connection to Main Server ends');
 		//console.log('Connection to Main Server ends');
-		connectionMgr.connectToMainServer( remoteID, remoteType, getCommand_cb);			
+		connectionMgr.connectToMainServer( getCommand_cb);			
 	});
 	
 	//console.log('Connection to Main Server starts');

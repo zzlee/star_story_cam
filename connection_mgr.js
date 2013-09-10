@@ -6,18 +6,18 @@ var http = require('http');
 var url = require('url');
 var request = require("request");
 
-
 var starServerURL;
-var remoteID;
+var serverId;
 require('./system_configuration.js').getInstance(function(config){
     starServerURL = config.HOST_STAR_SERVER;
-    remoteID = config.STAR_STORY_CAM_CONTROLLER_ID;
+    serverId = config.SERVER_ID;
 });
+var SERVER_TYPE = "STORY_CAM_CONTROLLER";
 
 connectionMgr.answerMainServer = function( commandID, answerObj, cb ){
     
-	answerObj._command_id = commandID;
-	answerObj._remote_id = remoteID;
+	answerObj._commandId = commandID;
+	answerObj._remoteId = serverId;
     
     request({
         method: 'POST',
@@ -33,10 +33,11 @@ connectionMgr.answerMainServer = function( commandID, answerObj, cb ){
 
 
 //long-polling connection to Star Server
-connectionMgr.connectToMainServer = function( remoteID, remoteType, getCommand_cb) {
+connectionMgr.connectToMainServer = function( serverLoad, getCommand_cb) {
 	var dataToSend = {
-		'remote_id': remoteID,
-		'remote_type': remoteType
+		'remoteId': serverId,
+		'remoteType': SERVER_TYPE,
+		'remoteLoad': serverLoad
 	};
 	
 	request({
@@ -48,7 +49,7 @@ connectionMgr.connectToMainServer = function( remoteID, remoteType, getCommand_c
     }, function(error, response, body){
 
         logger.info('Connection to Main Server ends');
-        connectionMgr.connectToMainServer( remoteID, remoteType, getCommand_cb);            
+        connectionMgr.connectToMainServer(serverLoad, getCommand_cb);            
 
         
         if (body) {

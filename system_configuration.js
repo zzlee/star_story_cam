@@ -24,8 +24,8 @@ FM.confuguration = (function(){
             var systemConfigXML;
             if (result.systemConfiguration){
                 systemConfigXML= result.systemConfiguration;
-                if (systemConfigXML.STAR_STORY_CAM_CONTROLLER_ID)
-                    resultObj.STAR_STORY_CAM_CONTROLLER_ID = systemConfigXML.STAR_STORY_CAM_CONTROLLER_ID[0];
+                if (systemConfigXML.SERVER_ID)
+                    resultObj.SERVER_ID = systemConfigXML.SERVER_ID[0];
                 if (systemConfigXML.MENCODER_BIN)
                     resultObj.MENCODER_BIN = systemConfigXML.MENCODER_BIN[0];
                 if (systemConfigXML.FFMPEG_BIN)

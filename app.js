@@ -68,7 +68,7 @@ var awsS3 = require('./aws_s3.js');
 
 var storyCamControllerID;
 require('./system_configuration.js').getInstance(function(config){
-    storyCamControllerID = config.STAR_STORY_CAM_CONTROLLER_ID;                               
+    storyCamControllerID = config.SERVER_ID;                               
 });
 
 var recordLimit = 0;
@@ -85,7 +85,7 @@ var recordExecute = function(control){
 };
 
 setTimeout(function(){ 
-	connectionMgr.connectToMainServer(storyCamControllerID, 'STORY_CAM_CONTROLLER', function( commandID, resDataBody ){
+	connectionMgr.connectToMainServer(1, function( commandID, resDataBody ){
 		
 		if (resDataBody.command == "START_RECORDING") {
 			//recordExecute('on');

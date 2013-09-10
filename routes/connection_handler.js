@@ -6,7 +6,7 @@ var eventEmitter = new events.EventEmitter();
 
 connectionHandler.commandResponse_post_cb = function(req, res) {
 
-	var commandID = req.body._command_id;
+	var commandID = req.body._commandId;
 	var responseParameters = req.body;
 
 	eventEmitter.emit('RESPONSE_'+commandID, responseParameters);
@@ -26,8 +26,8 @@ connectionHandler.sendRequestToRemote = function( targetID, reqToRemote, cb ) {
 };
 
 connectionHandler.command_get_cb = function(req, res) {
-	//console.log('['+ new Date() +']Got long-polling HTTP request from remote: '+ req.headers.remote_id );
-	logger.info('['+ new Date() +']Got long-polling HTTP request from remote: '+ req.headers.remote_id );
+	//console.log('['+ new Date() +']Got long-polling HTTP request from remote: '+ req.headers.remoteId );
+	logger.info('['+ new Date() +']Got long-polling HTTP request from remote: '+ req.headers.remoteId );
 	//console.dir(req);
 	
 	var messageToRemote = new Object();
@@ -41,14 +41,14 @@ connectionHandler.command_get_cb = function(req, res) {
 	};
 
 	var timer = setTimeout(function(){ 
-		eventEmitter.removeListener('COMMAND_'+req.headers.remote_id, callback);
+		eventEmitter.removeListener('COMMAND_'+req.headers.remoteId, callback);
 		messageToRemote.type = "LONG_POLLING_TIMEOUT";
 		messageToRemote.body = null;
 		res.send(messageToRemote);
 	}, 30000);	
 	//}, 5000);	
 	
-	eventEmitter.once('COMMAND_'+req.headers.remote_id, callback);	
+	eventEmitter.once('COMMAND_'+req.headers.remoteId, callback);	
 };
 
 module.exports = connectionHandler;
