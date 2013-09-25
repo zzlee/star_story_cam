@@ -4,8 +4,12 @@
 
 
 var ExposureMeter = (function() {
+    
+    var callbacks = {};
 
     function constructor() {
+        var sessionId = (new Date()).getTime();
+        
         var obj = {
             // ==public service of ExposureMeter
             
@@ -22,7 +26,7 @@ var ExposureMeter = (function() {
              * 
              * @param {Function} cbOfGetExposureOfArea The callback fucntion called when it finishes calculating the final exposure value
              */
-            getExposureOfArea : function(imageUrl, area, cbOfGetExposureOfArea) {
+            getExposureOfArea: function(imageUrl, area, cbOfGetExposureOfArea) {
                 console.log('getExposureOfArea() is called.');
                 
                 var spawn = require('child_process').spawn;
@@ -42,6 +46,19 @@ var ExposureMeter = (function() {
                   cbOfGetExposureOfArea(null, 0);
                 });
                 
+                callbacks[sessionId] = cbOfGetExposureOfArea;
+            },
+            
+            setAnswerForSession: function(sessionId, err, answerObj, cbOfSetAnswerForSession){
+                var callback = callbacks[sessionId];
+                
+                if (callback) {
+                    callbacks[sessionId](err, answerObj);
+                    cbOfSetAnswerForSession(null);
+                }
+                else {
+                    cbOfSetAnswerForSession('Cannot find the specific callback!');
+                }
                 
             }
         };
