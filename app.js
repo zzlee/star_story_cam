@@ -5,7 +5,6 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , user = require('./routes/user')
   , http = require('http')
   , path = require('path')
   , fs = require('fs');
@@ -31,12 +30,13 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-app.get('/users', user.list);
+
 
 //GZ
-app.get('/internal/commands', routes.command_get_cb);
-app.post('/internal/command_responses', routes.commandResponse_post_cb);
+app.get('/internal/commands', routes.connectionHandler.command_get_cb);
+app.post('/internal/command_responses', routes.connectionHandler.commandResponse_post_cb);
 
+app.put('/internal/responses_of_serverside_browser_session/:moduleId/:sessionId', routes.serverSideBrowserHandler.putResponsesOfServersideBrowserSession);
 
 
 http.createServer(app).listen(app.get('port'), function(){
@@ -152,13 +152,27 @@ setTimeout(function(){
 	});
 }, 10);
 
-/*
-setTimeout(function(){
-	storyCamMgr = require('./story_cam_mgr.js');
-	console.log('storyCamMgr.startRecording()');
-	storyCamMgr.startRecording('greeting-50ee77e2fc4d981408000014-20130207T014253670Z', function(resParametes){
-		console.log('started recording. Response:');
-		console.dir(resParametes);
-	});
-}, 5000);
-*/
+
+//setTimeout(function() {
+//    var exposureMeter = require('./exposure_meter.js').getInstance();
+//    var imageUrl = '/exposure_meter/test/grey_scale_sample.jpg';
+//    var area = {x:10, y:10, width: 20, height: 20};
+//    
+//    exposureMeter.getExposureOfArea(imageUrl, area, function(err, exposure){
+//        console.log('exposure=');
+//        console.dir(exposure);
+//        
+//    });
+//    
+//}, 3000);
+
+
+//setTimeout(function() {
+//    storyCamMgr = require('./story_cam_mgr.js');
+//    console.log('storyCamMgr.startRecording()');
+//    storyCamMgr.startRecording('greeting-50ee77e2fc4d981408000014-20130207T014253670Z', function( resParametes) {
+//        console.log('started recording. Response:');
+//        console.dir(resParametes);
+//    });
+//}, 5000);
+

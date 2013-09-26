@@ -4,11 +4,11 @@
 
 
 var ExposureMeter = (function() {
-    
-    var callbacks = {};
+    var uInstance = null;    
 
     function constructor() {
-        var sessionId = (new Date()).getTime();
+        
+        var callbacks = {};
         
         var obj = {
             // ==public service of ExposureMeter
@@ -28,9 +28,17 @@ var ExposureMeter = (function() {
              */
             getExposureOfArea: function(imageUrl, area, cbOfGetExposureOfArea) {
                 console.log('getExposureOfArea() is called.');
+                var sessionId = (new Date()).getTime() + '-' + Math.round(Math.random()*10000000);
+                
+                var queryString = '?imageUrl='+imageUrl
+                                 +'&area_x='+area.x
+                                 +'&area_y='+area.y
+                                 +'&area_width='+area.width
+                                 +'&area_height='+area.height
+                                 +'&sessionId='+sessionId;
                 
                 var spawn = require('child_process').spawn;
-                var ls    = spawn('chrome.exe', ['tw.yahoo.com']);
+                var ls    = spawn('chrome.exe', ['http://localhost:3001/exposure_meter/exposure_metering_agent.html'+queryString]);
 
                 ls.stdout.on('data', function (data) {
                   console.log('stdout: ' + data);
@@ -47,14 +55,25 @@ var ExposureMeter = (function() {
                 });
                 
                 callbacks[sessionId] = cbOfGetExposureOfArea;
+                
+                setTimeout(function(){
+                    if (callbacks[sessionId]){
+                        callbacks[sessionId] = "ERROR_OF_TIME_OUT";
+                        cbOfGetExposureOfArea("Time out for calculating exposure!", null);
+                    }
+                }, 10*1000); //time out in 10 sec
             },
             
             setAnswerForSession: function(sessionId, err, answerObj, cbOfSetAnswerForSession){
                 var callback = callbacks[sessionId];
                 
-                if (callback) {
-                    callbacks[sessionId](err, answerObj);
+                if ( typeof(callback) == 'function' ) {
+                    callback(err, answerObj);
                     cbOfSetAnswerForSession(null);
+                    delete callbacks[sessionId];
+                }
+                else if ( callback=='ERROR_OF_TIME_OUT' ) {
+                    cbOfSetAnswerForSession('Did not call the corresponding callback due to time out of its operation.');
                 }
                 else {
                     cbOfSetAnswerForSession('Cannot find the specific callback!');
@@ -70,10 +89,14 @@ var ExposureMeter = (function() {
         /**  
          * @constructs ExposureMeter
          *
-         * The class function that create an instance of ExposureMeter
+         * The class function get the unique instance of ExposureMeter
          */
-        getInstance : function() {
-            return constructor();
+        getInstance: function(){
+            if(!uInstance){
+                uInstance = constructor();
+            }
+            
+            return uInstance;
         }
     };
 })();
