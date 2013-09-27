@@ -7,7 +7,7 @@ serverSideBrowserHandler.putResponsesOfServersideBrowserSession = function(req, 
     var sessionId = req.params.sessionId;
     var moduleId = req.params.moduleId;
     
-    var exposureMeter = require('../exposure_meter.js').getInstance();
+    var exposureMeter = require('../exposure_meter_broker.js').getInstance();
     
     switch(moduleId)
     {

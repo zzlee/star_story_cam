@@ -54,15 +54,36 @@ $( document ).ready(function() {
         $('#imageToMeasure').attr('src',imageUrl);
         $('#traces').html(traceString);
         
-        setTimeout(function(){
-            answerServer(sessionId, null, {message: 'hello'}, function(){
-                //close the browser
-//                window.open('', '_self', ''); 
-//                window.close();
-            });
+        ExposureMeter.getInstance().getExposureOfArea(imageUrl, area, function(errOfGetExposureOfArea, result){
+            if (!errOfGetExposureOfArea){
+                setTimeout(function(){
+                    answerServer(sessionId, null, result, function(){
+                        //close the browser
+                        //window.open('', '_self', ''); 
+                        //window.close();
+                    });
 
-        }, 2000);
+                }, 2000);
+
+            }
+            else {
+                answerServer(sessionId, "Failed to get exposure: "+errOfGetExposureOfArea, null, function(){
+                    //close the browser
+                    //window.open('', '_self', ''); 
+                    //window.close();
+                });
+            }
+        });
         
+        
+//        setTimeout(function(){
+//            answerServer(sessionId, null, {msg: 'hello'}, function(){
+//                //close the browser
+////                window.open('', '_self', ''); 
+////                window.close();
+//            });
+//
+//        }, 2000);
 
         
     }

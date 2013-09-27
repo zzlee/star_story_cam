@@ -3,7 +3,7 @@
  */
 
 
-var ExposureMeter = (function() {
+var ExposureMeterBroker = (function() {
     var uInstance = null;    
 
     function constructor() {
@@ -101,4 +101,4 @@ var ExposureMeter = (function() {
     };
 })();
 
-module.exports = ExposureMeter;
+module.exports = ExposureMeterBroker;
