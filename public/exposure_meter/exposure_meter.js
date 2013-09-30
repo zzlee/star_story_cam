@@ -54,7 +54,7 @@ var ExposureMeter = (function() {
                         R = sampleData.data[i];
                         G = sampleData.data[i+1];
                         B = sampleData.data[i+2];
-                        Y = 0.2126*R + 0.7152*G + 0.0722*B;
+                        Y = Math.round(0.2126*R + 0.7152*G + 0.0722*B);
                         Y_total += Y;
                     }
                     
@@ -64,9 +64,11 @@ var ExposureMeter = (function() {
                 };
                 sampleImage.onerror = function(){
                     cbOfGetExposureOfArea("Failed to load the background image "+imageUrl, null);
+                    //console.log("Failed to load the background image "+imageUrl);
                 };
                 sampleImage.onabort = function(){
                     cbOfGetExposureOfArea("Failed to load the background image "+imageUrl+" (aborted)", null);
+                    //console.log("Failed to load the background image "+imageUrl+" (aborted)");
                 };
 
             }

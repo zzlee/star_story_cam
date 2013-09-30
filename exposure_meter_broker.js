@@ -40,28 +40,27 @@ var ExposureMeterBroker = (function() {
                 var spawn = require('child_process').spawn;
                 var ls    = spawn('chrome.exe', ['http://localhost:3001/exposure_meter/exposure_metering_agent.html'+queryString]);
 
-                ls.stdout.on('data', function (data) {
-                  console.log('stdout: ' + data);
-                });
     
                 ls.stderr.on('data', function (data) {
-                  console.log('stderr: ' + data);
+                    //console.log('stderr: ' + data);
+                    logger.info('child process launching Chrome.exe outputsed stderr:' + code);
                 });
     
                 ls.on('close', function (code) {
-                  console.log('child process exited with code ' + code);
-                  
-                  cbOfGetExposureOfArea(null, 0);
+                    //console.log('child process exited with code ' + code);
+                    logger.info('child process launching Chrome.exe exited with code ' + data);
+                    
+                    callbacks[sessionId] = cbOfGetExposureOfArea;
+                    
+                    setTimeout(function(){
+                        if (callbacks[sessionId]){
+                            callbacks[sessionId] = "ERROR_OF_TIME_OUT";
+                            cbOfGetExposureOfArea("Time out for calculating exposure!", null);
+                        }
+                    }, 10*1000); //time out in 10 sec
+    
                 });
                 
-                callbacks[sessionId] = cbOfGetExposureOfArea;
-                
-                setTimeout(function(){
-                    if (callbacks[sessionId]){
-                        callbacks[sessionId] = "ERROR_OF_TIME_OUT";
-                        cbOfGetExposureOfArea("Time out for calculating exposure!", null);
-                    }
-                }, 10*1000); //time out in 10 sec
             },
             
             setAnswerForSession: function(sessionId, err, answerObj, cbOfSetAnswerForSession){
@@ -73,7 +72,8 @@ var ExposureMeterBroker = (function() {
                 if ( typeof(callback) == 'function' ) {
                     callback(err, answerObj);
                     cbOfSetAnswerForSession(null);
-                    delete callbacks[sessionId];
+                    callbacks[sessionId] = null;
+                    //delete callbacks[sessionId];
                 }
                 else if ( callback=='ERROR_OF_TIME_OUT' ) {
                     cbOfSetAnswerForSession('Did not call the corresponding callback due to time out of its operation.');

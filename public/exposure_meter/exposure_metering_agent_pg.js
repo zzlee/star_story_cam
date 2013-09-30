@@ -63,8 +63,8 @@ $( document ).ready(function() {
                 //$('#traces').append('<br>result='+JSON.stringify(result));
                 answerServer(sessionId, null, {exposure: result.exposure}, function(){
                     //close the browser
-                    //window.open('', '_self', ''); 
-                    //window.close();
+                    window.open('', '_self', ''); 
+                    window.close();
                 });
 
                 

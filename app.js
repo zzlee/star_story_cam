@@ -156,12 +156,11 @@ setTimeout(function(){
 setTimeout(function() {
     var exposureMeterBroker = require('./exposure_meter_broker.js').getInstance();
     var imageUrl = '/exposure_meter/test/grey_scale_sample.jpg';
-    var area = {x:110, y:10, width: 20, height: 20};
+    var area = {x:110, y:110, width: 20, height: 20};
     
     exposureMeterBroker.getExposureOfArea(imageUrl, area, function(err, result){
         //console.log('exposure=');
         //console.dir(exposure);
-        debugger;
         console.log('exposure='+result.exposure);
         
     });
