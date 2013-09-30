@@ -1,15 +1,26 @@
 var exposureTime = [
     //0-5
-    -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
+    2.414, 2.414, 2.414, 2.414, 1.6, 1.6,
     //6-11
-    -1.0, 0.0, 0.0, 0.0, 1.0, 1.0,
+    1.0, 1.0, 1.0, 1.80, 1.80, 1.80,
     //12-17
-    1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 
+    1.8, 2.0, 2.0, 2.0, 1.0, 1.0, 
     //18-23
-    1.0, 1.0, 0.0, -1.0, -1.0, -1.0
+    1.0, 1.0, 1.0, 1.0, 1.0, 1.0
 ];
 
-var frameRate = 30.0;
+var gainTime = [
+    //0-5
+    -1.0, -1.0, -1.0, -1.0, -1.0, 38.0,
+    //6-11
+    -1.0, -1.0, -1.0, 8.0, 8.0, 8.0,
+    //12-17
+    -1.0, -1.0, -1.0, -1.0, -1.0, 17,
+    //18-23
+    17, 17, 17, 17, 17, 17
+];
+
+var frameRate = 27.0;
 
 storyCamMgr = {};
 
@@ -196,9 +207,11 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 		storyCamMgr.playTime = new Date().getTime();
 		//console.log(storyCamMgr.playTime);
 		
-		execFile(exe_route, ['30', storyCamMgr.playTime, exposureTime[new Date(storyCamMgr.playTime).getHours()], frameRate], function(err, stdout, stderr){
-			console.log('stdout: ' + stdout);
-			console.log('stderr: ' + stderr);
+		execFile(exe_route, ['30', storyCamMgr.playTime, exposureTime[new Date(storyCamMgr.playTime).getHours()], frameRate, gainTime[new Date(storyCamMgr.playTime).getHours()]], function(err, stdout, stderr){
+			//console.log('stdout: ' + stdout);
+			logger.info('stdout: ' + stdout);
+			//console.log('stderr: ' + stderr);
+			logger.info('stderr: ' + stderr);
 			logger.info('Record end: ' + storyCamMgr.playTime);
 			var source = fs.createReadStream(storyCamMgr.playTime + '-0000.mp4');
 			//var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story_raw.mp4');
