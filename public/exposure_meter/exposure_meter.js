@@ -37,7 +37,7 @@ var ExposureMeter = (function() {
                 
                 var context = sampleCanvas.getContext('2d');
                 context.webkitImageSmoothingEnabled = true;
-                sampleImage = new Image();
+                sampleImage = document.createElement('img');
                 sampleImage.src = imageUrl;
                 sampleImage.onload = function(){
                     sampleCanvas.width = sampleImage.width;

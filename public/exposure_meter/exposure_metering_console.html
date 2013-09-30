@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ready demo</title>
+    <script src="./jquery-2.0.3.min.js"></script>
+    <script src="./exposure_metering_console_pg.js"></script>
+    <script src="./exposure_meter.js"></script>
+</head>
+<body>
+ 
+<h1>Exposure Metering Console</h1> 
+
+<form>
+Image URL: <input type="text" name="imageUrl" value="/exposure_meter/test/grey_scale_sample.jpg" style="width: 80%"><br>
+Area to meter: <input type="text" name="area" value='{"x":10, "y":10, "width":20, "height":20}' style="width: 80%"><br>
+<input id="btnMeter" type="button" value="Submit">
+</form> 
+
+<img id="imageToMeasure"></img> 
+<p id="traces"></p> 
+ 
+</body>
+</html>

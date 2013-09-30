@@ -153,19 +153,19 @@ setTimeout(function(){
 }, 10);
 
 
-setTimeout(function() {
-    var exposureMeterBroker = require('./exposure_meter_broker.js').getInstance();
-    var imageUrl = '/exposure_meter/test/grey_scale_sample.jpg';
-    var area = {x:110, y:110, width: 20, height: 20};
-    
-    exposureMeterBroker.getExposureOfArea(imageUrl, area, function(err, result){
-        //console.log('exposure=');
-        //console.dir(exposure);
-        console.log('exposure='+result.exposure);
-        
-    });
-    
-}, 3000);
+//setTimeout(function() {
+//    var exposureMeterBroker = require('./exposure_meter_broker.js').getInstance();
+//    var imageUrl = '/exposure_meter/test/grey_scale_sample.jpg';
+//    var area = {x:110, y:110, width: 20, height: 20};
+//    
+//    exposureMeterBroker.getExposureOfArea(imageUrl, area, function(err, result){
+//        //console.log('exposure=');
+//        //console.dir(exposure);
+//        console.log('exposure='+result.exposure);
+//        
+//    });
+//    
+//}, 3000);
 
 
 //setTimeout(function() {
