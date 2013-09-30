@@ -27,7 +27,7 @@ var ExposureMeterBroker = (function() {
              * @param {Function} cbOfGetExposureOfArea The callback fucntion called when it finishes calculating the final exposure value
              */
             getExposureOfArea: function(imageUrl, area, cbOfGetExposureOfArea) {
-                console.log('getExposureOfArea() is called.');
+                //console.log('getExposureOfArea() is called.');
                 var sessionId = (new Date()).getTime() + '-' + Math.round(Math.random()*10000000);
                 
                 var queryString = '?imageUrl='+imageUrl
@@ -65,6 +65,9 @@ var ExposureMeterBroker = (function() {
             },
             
             setAnswerForSession: function(sessionId, err, answerObj, cbOfSetAnswerForSession){
+                
+                //console.log("ExposureMeterBroker.setAnswerForSession() is called");
+                
                 var callback = callbacks[sessionId];
                 
                 if ( typeof(callback) == 'function' ) {

@@ -45,15 +45,15 @@ var ExposureMeter = (function() {
                     context.drawImage(sampleImage,0,0);
                     
                     var sampleData = context.getImageData(area.x, area.y ,area.width, area.height);
-                    var totalPixelNumber = sampleData.length/4;
+                    var totalPixelNumber = sampleData.data.length/4;
                     var R, G, B; //Red, Green, Blue
                     var Y; //luma
                     var Y_total = 0;
                     
-                    for ( var i=0; i<sampleData.length; i+=4) {
-                        R = sampleData[i];
-                        G = sampleData[i+1];
-                        B = sampleData[i+2];
+                    for ( var i=0; i<sampleData.data.length; i+=4) {
+                        R = sampleData.data[i];
+                        G = sampleData.data[i+1];
+                        B = sampleData.data[i+2];
                         Y = 0.2126*R + 0.7152*G + 0.0722*B;
                         Y_total += Y;
                     }

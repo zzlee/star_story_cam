@@ -13,6 +13,7 @@ $( document ).ready(function() {
         var moduleId = "EXPOSURE_METER";
         $.ajax( "/internal/responses_of_serverside_browser_session/" + moduleId + "/" + sessionId, {
             type: "PUT",
+            dataType : "json",
             data: {
                 err: errToAnswer,
                 answerObj: objToAnswer
@@ -56,21 +57,23 @@ $( document ).ready(function() {
         
         ExposureMeter.getInstance().getExposureOfArea(imageUrl, area, function(errOfGetExposureOfArea, result){
             if (!errOfGetExposureOfArea){
-                setTimeout(function(){
-                    answerServer(sessionId, null, result, function(){
-                        //close the browser
-                        //window.open('', '_self', ''); 
-                        //window.close();
-                    });
+                
+                $('#imgTest').attr('src', result.sampleCanvas.toDataURL());
+                $('#traces').append('<br>exposure='+result.exposure);
+                //$('#traces').append('<br>result='+JSON.stringify(result));
+                answerServer(sessionId, null, {exposure: result.exposure}, function(){
+                    //close the browser
+                    //window.open('', '_self', ''); 
+                    //window.close();
+                });
 
-                }, 2000);
-
+                
             }
             else {
                 answerServer(sessionId, "Failed to get exposure: "+errOfGetExposureOfArea, null, function(){
                     //close the browser
-                    //window.open('', '_self', ''); 
-                    //window.close();
+                    window.open('', '_self', ''); 
+                    window.close();
                 });
             }
         });
