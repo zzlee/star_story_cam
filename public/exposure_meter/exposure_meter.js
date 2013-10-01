@@ -58,7 +58,7 @@ var ExposureMeter = (function() {
                         Y_total += Y;
                     }
                     
-                    var exposure = Y_total/totalPixelNumber;
+                    var exposure = Math.round(Y_total/totalPixelNumber);
                     
                     cbOfGetExposureOfArea(null, {sampleCanvas: sampleCanvas, exposure: exposure});
                 };
