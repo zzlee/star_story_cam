@@ -5,11 +5,11 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , user = require('./routes/user')
   , http = require('http')
   , path = require('path')
   , fs = require('fs');
 
+var schedule = require('node-schedule');
 var workingPath = process.cwd();
 
 var app = express();
@@ -31,12 +31,13 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-app.get('/users', user.list);
+
 
 //GZ
-app.get('/internal/commands', routes.command_get_cb);
-app.post('/internal/command_responses', routes.commandResponse_post_cb);
+app.get('/internal/commands', routes.connectionHandler.command_get_cb);
+app.post('/internal/command_responses', routes.connectionHandler.commandResponse_post_cb);
 
+app.put('/internal/responses_of_serverside_browser_session/:moduleId/:sessionId', routes.serverSideBrowserHandler.putResponsesOfServersideBrowserSession);
 
 
 http.createServer(app).listen(app.get('port'), function(){
@@ -152,13 +153,53 @@ setTimeout(function(){
 	});
 }, 10);
 
-/*
-setTimeout(function(){
-	storyCamMgr = require('./story_cam_mgr.js');
-	console.log('storyCamMgr.startRecording()');
-	storyCamMgr.startRecording('greeting-50ee77e2fc4d981408000014-20130207T014253670Z', function(resParametes){
-		console.log('started recording. Response:');
-		console.dir(resParametes);
-	});
-}, 5000);
-*/
+
+// close process and restart by supervior
+logger.info('start story camera: ' + new Date());
+
+var rule_0900 = new schedule.RecurrenceRule();
+rule_0900.dayOfWeek = [new schedule.Range(0, 6)];
+rule_0900.hour = 9;
+rule_0900.minute = 0;
+
+var restart_0900 = schedule.scheduleJob(rule_0900, function(){
+    logger.info('close story camera: ' + new Date());
+    process.exit(1);
+});
+
+var rule_1200 = new schedule.RecurrenceRule();
+rule_1200.dayOfWeek = [new schedule.Range(0, 6)];
+rule_1200.hour = 12;
+rule_1200.minute = 0;
+
+var restart_1200 = schedule.scheduleJob(rule_1200, function(){
+    logger.info('close story camera: ' + new Date());
+    process.exit(1);
+});
+
+
+
+//setTimeout(function() {
+//    var exposureMeterBroker = require('./exposure_meter_broker.js').getInstance();
+//    var imageUrl = '/exposure_meter/test/grey_scale_sample.jpg';
+//    var area = {x:110, y:110, width: 20, height: 20};
+//    
+//    exposureMeterBroker.getExposureOfArea(imageUrl, area, function(err, result){
+//        //console.log('exposure=');
+//        //console.dir(exposure);
+//        console.log('exposure='+result.exposure);
+//        
+//    });
+//    
+//}, 3000);
+
+
+//setTimeout(function() {
+//    storyCamMgr = require('./story_cam_mgr.js');
+//    console.log('storyCamMgr.startRecording()');
+//    storyCamMgr.startRecording('greeting-50ee77e2fc4d981408000014-20130207T014253670Z', function( resParametes) {
+//        console.log('started recording. Response:');
+//        console.dir(resParametes);
+//    });
+//}, 5000);
+
