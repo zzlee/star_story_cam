@@ -335,7 +335,7 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
     var shutterOption = new EventEmitter();
     
     var timeTrigger = function(actionTime){
-        console.log('shutter time: ' + times + ', duration: ' + actionTime);
+        // console.log('shutter time: ' + times + ', duration: ' + actionTime);
         // var delay = actionTime * 1000;
 
         // setTimeout(function(){
