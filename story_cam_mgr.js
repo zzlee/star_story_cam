@@ -223,7 +223,10 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 			var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story.avi');
 			source.pipe(dest);
 			source.on('end', function() { 
-				fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
+                fs.exists(storyCamMgr.playTime + '-0000.mp4', function (exists) {
+                    if(exists)
+                        fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
+                });
 				recordLimit = 0;
 				
 				var target =  path.join(workingPath, 'public/story_movies', storyCamMgr.playTime+'__story.avi');
