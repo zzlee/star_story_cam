@@ -149,6 +149,20 @@ setTimeout(function(){
             };
             connectionMgr.answerMainServer(commandID, answerObj);
         }
+        else if (resDataBody.command == "START_SHUTTER") {
+			//recordExecute('on');
+			//if(recordLimit == 1){
+				storyCamMgr.startShutter(resDataBody.parameters, function(result){
+					var answerObj = {
+						err: result.err,
+					};
+					connectionMgr.answerMainServer(commandID, answerObj);
+					//console.log(recordLimit);
+					//recordExecute('off');
+				});
+				
+			//}
+		}
 	
 	});
 }, 10);
@@ -176,8 +190,6 @@ var restart_2100 = schedule.scheduleJob(rule_2100, function(){
     logger.info('close story camera: ' + new Date());
     process.exit(1);
 });
-
-
 
 //setTimeout(function() {
 //    var exposureMeterBroker = require('./exposure_meter_broker.js').getInstance();
