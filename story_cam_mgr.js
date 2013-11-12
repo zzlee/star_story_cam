@@ -38,9 +38,11 @@ var request = require('request');
 var async = require('async');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
-var exe_recording = path.join(__dirname + '/FC_test32/x64/Release/FC_test.exe');
+// var exe_recording = path.join(__dirname + '/FC_test32/x64/Release/FC_test.exe');
+var exe_recording = path.join(__dirname + '/camera_controller/FC_test.exe');
 // var exe_shutter = path.join(__dirname + '/FC_test32/x64/Release/FC_ImageRetrieved_test.exe');
-var exe_shutter = path.join(__dirname + '/FC_test32/Release_x64/ImageShutterByTimeTrigger.exe');
+// var exe_shutter = path.join(__dirname + '/FC_test32/Release_x64/ImageShutterByTimeTrigger.exe');
+var exe_shutter = path.join(__dirname + '/camera_controller/ImageShutterByTimeTrigger.exe');
 var recordLimit = 0;
 // var starServerURL;
 
@@ -183,30 +185,6 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
     
 	recordLimit += 1;
     
-    //var recordID = miixMovieProjectID + storyCamMgr.playTime;
-	
-	/*
-    var PGRrecord = spawn(exe_recording, ['20', storyCamMgr.playTime + '.mp4']);
-
-    PGRrecord.stdout.on('data', function (data) {
-		console.log('stdout: ' + data);
-	});
-
-	PGRrecord.stderr.on('data', function (data) {
-		console.log('stderr: ' + data);
-	});
-    PGRrecord.on('close', function (code) {
-        //console.log('child process exited with code ' + code);
-        //move file to specify folder
-		logger.info('Record end: ' + storyCamMgr.playTime);
-        var source = fs.createReadStream(storyCamMgr.playTime + '-0000.mp4');
-        var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story_raw.mp4');
-        source.pipe(dest);
-        source.on('end', function() { 
-            fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
-        });
-    });
-	*/
 	if(recordLimit == 1) {
 		storyCamMgr.playTime = new Date().getTime();
 		//console.log(storyCamMgr.playTime);
@@ -223,10 +201,7 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
 			var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story.avi');
 			source.pipe(dest);
 			source.on('end', function() { 
-                fs.exists(storyCamMgr.playTime + '-0000.mp4', function (exists) {
-                    if(exists)
-                        fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
-                });
+                
 				recordLimit = 0;
 				
 				var target =  path.join(workingPath, 'public/story_movies', storyCamMgr.playTime+'__story.avi');
@@ -245,6 +220,11 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
                     //connectionMgr.answerMainServer(commandID, answerObj);
                     // console.log(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
                     request.put(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
+                    fs.exists(storyCamMgr.playTime + '-0000.mp4', function (exists) {
+                        if(exists)
+                            fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
+                    });
+                    
                 });
 				
 			});
@@ -338,25 +318,6 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
     var shutterOption = new EventEmitter();
     
     var timeTrigger = function(actionTime){
-        // console.log('shutter time: ' + times + ', duration: ' + actionTime);
-        // var delay = actionTime * 1000;
-
-        // setTimeout(function(){
-            // /* shutter on */
-            // var filename = storyCamMgr.playTime + '-' + times;
-            // filename = path.join(workingPath, 'public/live_photos', filename);
-            // execFile(exe_shutter, [filename, exposureTime[new Date(storyCamMgr.playTime).getHours()], frameRate, gainTime[new Date(storyCamMgr.playTime).getHours()]], function(err, stdout, stderr){
-                // var photosArr = stdout.toString().split(",");
-                // logger.info('live photos: ' + photosArr);
-                // logger.info('live photos miss: ' + stderr);
-                // livePhotos.push(photosArr);
-                // times++;
-                /* (times != programAction.length)?timeTrigger(programAction[times]):shutterOption.emit('close', 'done'); */
-                // (times != programAction.length)?'':shutterOption.emit('close', 'done');
-            // });
-            // times++;
-            // (times != programAction.length)?timeTrigger(programAction[times]):'';
-        // }, delay);
         
         var filename = path.join(workingPath, 'public/live_photos', storyCamMgr.playTime.toString());
         var action = '[' + actionTime.toString().replace(' ','') + ']';
