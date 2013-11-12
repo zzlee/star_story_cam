@@ -171,16 +171,6 @@ setTimeout(function(){
 // close process and restart by supervior
 logger.info('start story camera: ' + new Date());
 
-var rule_0900 = new schedule.RecurrenceRule();
-rule_0900.dayOfWeek = [new schedule.Range(0, 6)];
-rule_0900.hour = 9;
-rule_0900.minute = 0;
-
-var restart_0900 = schedule.scheduleJob(rule_0900, function(){
-    logger.info('close story camera: ' + new Date());
-    process.exit(1);
-});
-
 var rule_1200 = new schedule.RecurrenceRule();
 rule_1200.dayOfWeek = [new schedule.Range(0, 6)];
 rule_1200.hour = 12;
@@ -191,6 +181,15 @@ var restart_1200 = schedule.scheduleJob(rule_1200, function(){
     process.exit(1);
 });
 
+var rule_2100 = new schedule.RecurrenceRule();
+rule_2100.dayOfWeek = [new schedule.Range(0, 6)];
+rule_2100.hour = 9;
+rule_2100.minute = 0;
+
+var restart_2100 = schedule.scheduleJob(rule_2100, function(){
+    logger.info('close story camera: ' + new Date());
+    process.exit(1);
+});
 
 //setTimeout(function() {
 //    var exposureMeterBroker = require('./exposure_meter_broker.js').getInstance();
