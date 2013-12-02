@@ -17,11 +17,11 @@ var times = 1;
 var spawn = require('child_process').spawn;
 console.time('FC_test-record');
 
-// var FC_test = spawn('ImageShutterByTimeTrigger.exe', 
-                    // ['-o', new Date().getTime(), '-e', 1.0, 
-                     // '-g', 10.0, '-f', 27, '-t', '[5.5,9.0,7.0]']);
-var FC_test = spawn('FC_test.exe', 
-                   [30, 'test_record', 1.0, 27, -1]);
+var FC_test = spawn('ImageShutterByTimeTrigger.exe', 
+                    ['-o', new Date().getTime(), '-e', 1.0, 
+                     '-g', 10.0, '-f', 27, '-t', '[4.5,8.0,7.0]']);
+// var FC_test = spawn('FC_test.exe', 
+                   // [30, 'test_record', 1.0, 27, -1]);
 
 FC_test.stdout.on('data', function (data) {
     console.log('stdout: ' + data);

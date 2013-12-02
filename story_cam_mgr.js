@@ -185,59 +185,81 @@ storyCamMgr.startRecording = function( miixMovieProjectID, startedRecording_cb )
     
 	recordLimit += 1;
     
-	if(recordLimit == 1) {
-		storyCamMgr.playTime = new Date().getTime();
-		//console.log(storyCamMgr.playTime);
-        logger.info('Record start: ' + storyCamMgr.playTime);
-		
-		execFile(exe_recording, ['30', storyCamMgr.playTime, exposureTime[new Date(storyCamMgr.playTime).getHours()], frameRate, gainTime[new Date(storyCamMgr.playTime).getHours()]], function(err, stdout, stderr){
-			//console.log('stdout: ' + stdout);
-			logger.info('stdout: ' + stdout);
-			//console.log('stderr: ' + stderr);
-			logger.info('stderr: ' + stderr);
-			logger.info('Record end: ' + storyCamMgr.playTime);
-			var source = fs.createReadStream(storyCamMgr.playTime + '-0000.mp4');
-			//var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story_raw.mp4');
-			var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story.avi');
-			source.pipe(dest);
-			source.on('end', function() { 
-                
-				recordLimit = 0;
-				
-				var target =  path.join(workingPath, 'public/story_movies', storyCamMgr.playTime+'__story.avi');
-				var s3Path =  '/camera_record/' + storyCamMgr.playTime + '/'+ storyCamMgr.playTime+'__story.avi';
-                awsS3.uploadToAwsS3(target, s3Path, 'video/x-msvideo', function(err,result){
-                    if (!err){
-                        logger.info('Story movie was successfully uploaded to S3 '+s3Path);
-                     }
-                    else {
-                        logger.info('Story movie failed to be uploaded to S3 '+s3Path);
-                    }
+    var taskClear = spawn('taskkill', ['/f', '/im', 'ImageShutterByTimeTrigger.exe']);
+    
+    var recordTrigger = function() {
+    
+        if(recordLimit == 1) {
+            storyCamMgr.playTime = new Date().getTime();
+            //console.log(storyCamMgr.playTime);
+            logger.info('Record start: ' + storyCamMgr.playTime);
+            
+            execFile(exe_recording, ['30', storyCamMgr.playTime, exposureTime[new Date(storyCamMgr.playTime).getHours()], frameRate, gainTime[new Date(storyCamMgr.playTime).getHours()]], function(err, stdout, stderr){
+                //console.log('stdout: ' + stdout);
+                logger.info('stdout: ' + stdout);
+                //console.log('stderr: ' + stderr);
+                logger.info('stderr: ' + stderr);
+                logger.info('Record end: ' + storyCamMgr.playTime);
+                var source = fs.createReadStream(storyCamMgr.playTime + '-0000.mp4');
+                //var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story_raw.mp4');
+                var dest = fs.createWriteStream('./public/story_movies/' + storyCamMgr.playTime + '__story.avi');
+                source.pipe(dest);
+                source.on('end', function() { 
                     
-                    answerObj = {
-                            err: err
-                    };
-                    //connectionMgr.answerMainServer(commandID, answerObj);
-                    // console.log(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
-                    request.put(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
-                    fs.exists(storyCamMgr.playTime + '-0000.mp4', function (exists) {
-                        if(exists)
-                            fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
+                    recordLimit = 0;
+                    
+                    var target =  path.join(workingPath, 'public/story_movies', storyCamMgr.playTime+'__story.avi');
+                    var s3Path =  '/camera_record/' + storyCamMgr.playTime + '/'+ storyCamMgr.playTime+'__story.avi';
+                    awsS3.uploadToAwsS3(target, s3Path, 'video/x-msvideo', function(err,result){
+                        if (!err){
+                            logger.info('Story movie was successfully uploaded to S3 '+s3Path);
+                         }
+                        else {
+                            logger.info('Story movie failed to be uploaded to S3 '+s3Path);
+                        }
+                        
+                        answerObj = {
+                                err: err
+                        };
+                        //connectionMgr.answerMainServer(commandID, answerObj);
+                        // console.log(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
+                        request.put(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
+                        fs.exists(storyCamMgr.playTime + '-0000.mp4', function (exists) {
+                            if(exists)
+                                fs.unlinkSync(storyCamMgr.playTime + '-0000.mp4');
+                        });
+                        
                     });
                     
                 });
-				
-			});
-		});
-	}
-	
-	connectionHandler.sendRequestToRemote( storyCamID, { command: "START_RECORDING", parameters: commandParameters }, function(responseParameters) {
-		//console.dir(responseParameters);
-		if (startedRecording_cb )  {
-			startedRecording_cb(responseParameters);
-		}
-	});
-			
+            });
+        }
+        
+        connectionHandler.sendRequestToRemote( storyCamID, { command: "START_RECORDING", parameters: commandParameters }, function(responseParameters) {
+            //console.dir(responseParameters);
+            if (startedRecording_cb )  {
+                startedRecording_cb(responseParameters);
+            }
+        });
+        
+    };
+    
+    
+    taskClear.on('close', function (code) {
+        // console.log('child process exited with code ' + code);
+        if( code == 0 ) {
+            // console.log('shutter crush clear');
+            logger.info('shutter crush clear');
+        }
+        else {
+            // console.log('shutter no crush');
+            logger.info('shutter no crush');
+        }
+        // timeTrigger(programAction);
+        recordTrigger();
+        
+    });
+    
 };
 
 var qrcode = require('./routes/trimStoryMoive.js');
@@ -303,15 +325,16 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
     
     // console.log("story cam starts shutter");
     
-    storyCamMgr.playTime = new Date().getTime();
-    logger.info('story cam starts shutter, Record start: ' + storyCamMgr.playTime);
+    var playTime = new Date().getTime();
+    logger.info('story cam starts shutter, Record start: ' + playTime);
     
+    var taskClear = spawn('taskkill', ['/f', '/im', 'ImageShutterByTimeTrigger.exe']);
+
     var programAction = shutterSetting.actionSetting;
 	var storyCamID = 'browser_controlling_cam_0';
 	var commandParameters = {
 		movieProjectID: shutterSetting.miixMovieProjectID
 	};
-    storyCamMgr.currentStoryMoive = shutterSetting.miixMovieProjectID;
     
     var livePhotos = [];
     var times = 0;
@@ -319,13 +342,13 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
     
     var timeTrigger = function(actionTime){
         
-        var filename = path.join(workingPath, 'public/live_photos', storyCamMgr.playTime.toString());
+        var filename = path.join(workingPath, 'public/live_photos', playTime.toString());
         var action = '[' + actionTime.toString().replace(' ','') + ']';
         
         var shutter = spawn(exe_shutter, [
                             '-o', filename, 
-                            '-e', exposureTime[new Date(storyCamMgr.playTime).getHours()], 
-                            '-g', gainTime[new Date(storyCamMgr.playTime).getHours()], 
+                            '-e', exposureTime[new Date(playTime).getHours()], 
+                            '-g', gainTime[new Date(playTime).getHours()], 
                             '-f', frameRate, 
                             '-t', action
                             ]);
@@ -342,7 +365,21 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
         
     };
     // timeTrigger(programAction[times]);
-    timeTrigger(programAction);
+    
+    taskClear.on('close', function (code) {
+        // console.log('child process exited with code ' + code);
+        if( code == 0 ) {
+            // console.log('shutter crush clear');
+            logger.info('shutter crush clear');
+        }
+        else {
+            // console.log('shutter no crush');
+            logger.info('shutter no crush');
+        }
+        timeTrigger(programAction);
+    });
+    
+    // timeTrigger(programAction);
     
     shutterOption.once('close', function(status){
         // console.dir(livePhotos);
@@ -351,7 +388,7 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
         var uploadAwsS3 = function(source, s3_cb){
             var target = source;
             var s3Filename = source.split("\\");
-            var s3Path = '/camera_record/' + storyCamMgr.playTime + '/'+ s3Filename[s3Filename.length-1];
+            var s3Path = '/camera_record/' + playTime + '/'+ s3Filename[s3Filename.length-1];
             awsS3.uploadToAwsS3(target, s3Path, 'image/jpeg', function(err, res){
                 if (!err){
                     logger.info('Live photo was successfully uploaded to S3 '+s3Path);
@@ -377,11 +414,11 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
         async.series(execute, function(err, res){
             // (err)?console.dir(err):console.dir(res);
             // (err)?validExpired_cb(err, null):validExpired_cb(null, 'done');
-            // request.put(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
-            // console.log(starServerURL + '/available_street_movies/' + storyCamMgr.playTime);
-            request.put(starServerURL + '/available_street_photos/' + storyCamMgr.playTime);
-            // console.log(starServerURL + '/available_street_photos/' + storyCamMgr.playTime);
-            logger.info('Send PUT request to server: '+ starServerURL + '/available_street_photos/' + storyCamMgr.playTime);
+            // request.put(starServerURL + '/available_street_movies/' + playTime);
+            // console.log(starServerURL + '/available_street_movies/' + playTime);
+            request.put(starServerURL + '/available_street_photos/' + playTime);
+            // console.log(starServerURL + '/available_street_photos/' + playTime);
+            logger.info('Send PUT request to server: '+ starServerURL + '/available_street_photos/' + playTime);
         });
         
     });
