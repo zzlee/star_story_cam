@@ -19,7 +19,7 @@ console.time('FC_test-record');
 
 var FC_test = spawn('ImageShutterByTimeTrigger.exe', 
                     ['-o', new Date().getTime(), '-e', 0.0, 
-                     '-g', 0.0, '-f', 27, '-t', '[4.5,8.0,7.0]']);
+                     '-g', 0.0, '-f', 27, '-t', '[6.495,15,15,15,15,15,15,15,15,15,15,15]']);
 // var FC_test = spawn('FC_test.exe', 
                    // [30, 'test_record', 1.0, 27, -1]);
 
