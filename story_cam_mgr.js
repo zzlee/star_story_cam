@@ -325,8 +325,17 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
     
     // console.log("story cam starts shutter");
     
-    var playTime = new Date().getTime();
-    logger.info('story cam starts shutter, Record start: ' + playTime);
+    // var playTime = new Date().getTime();
+    // logger.info('story cam starts shutter, Record start: ' + playTime);
+    var playTime = null;
+    if( typeof(shutterSetting.playTime) === 'undefined' ) {
+        playTime = new Date().getTime();
+        logger.info('story cam starts shutter, Record start: ' + playTime);
+    }
+    else {
+        playTime = shutterSetting.playTime;
+        logger.info('story cam starts shutter, Record start: ' + playTime);
+    }
     
     var taskClear = spawn('taskkill', ['/f', '/im', 'ImageShutterByTimeTrigger.exe']);
 
@@ -413,13 +422,88 @@ storyCamMgr.startShutter = function( shutterSetting, startedShutter_cb ) {
         
         async.series(execute, function(err, res){
             // (err)?console.dir(err):console.dir(res);
-            // (err)?validExpired_cb(err, null):validExpired_cb(null, 'done');
-            // request.put(starServerURL + '/available_street_movies/' + playTime);
-            // console.log(starServerURL + '/available_street_movies/' + playTime);
-            request.put(starServerURL + '/available_street_photos/' + playTime);
+            // logger.info('Send PUT request to server: '+ starServerURL + '/available_street_photos/' + playTime);
             // console.log(starServerURL + '/available_street_photos/' + playTime);
-            logger.info('Send PUT request to server: '+ starServerURL + '/available_street_photos/' + playTime);
+            // request.put(starServerURL + '/available_street_photos/' + playTime);
+            checkUploadStaus(function(status) {
+                if( status == 'not_loss' ) {
+                    request.put(starServerURL + '/available_street_photos/' + playTime);
+                    logger.info('Live content is not loss, start request');
+                    logger.info('Send PUT request to server: '+ starServerURL + '/available_street_photos/' + playTime);
+                }
+                else {
+                    request.put(starServerURL + '/available_street_photos/' + playTime);
+                    logger.info('Live content re-upload is ok, start request');
+                    logger.info('Send PUT request to server: '+ starServerURL + '/available_street_photos/' + playTime);
+                }
+            });
+            
         });
+        
+        var checkUploadStaus = function(check_cb) {
+            var S3List = [],
+                fileList = [],
+                uploadList = [];
+            var flag = {
+                s3 : 0,
+                file : 0
+            };
+            awsS3.listAwsS3('camera_record/' + playTime, function(err, res){
+                for(var i = 0, max = res.Contents.length; i < max; i++) {
+                    // console.log('Path: ' + '/' + res.Contents[i].Key);
+                    if( res.Contents[i].Key.toString().indexOf('.jpg') != -1 )
+                        S3List.push('/' + res.Contents[i].Key);
+                }
+                for(var i = 0, max = livePhotos.length; i < max; i++) {
+                    for(var j = 0, count = livePhotos[i].length; j < count; j++) {
+                        fileList.push(livePhotos[i][j]);
+                    }
+                }
+                
+                for(var i = 0, max = fileList.length; i < max; i++) {
+                    // console.log(fileList[i] + ' : ' + S3List[i]);
+                    var s3name = S3List[flag.s3].toString().split("/");
+                    s3name = s3name[s3name.length - 1];
+                    var filename = fileList[flag.file].toString().split("\\");
+                    filename = filename[filename.length - 1];
+                    
+                    if( s3name == filename ) {
+                        // console.log(filename + ' : ' + s3name + ' = true');
+                        logger.info('Live content upload aws s3 is ok, ' + filename);
+                        flag.s3 += 1;
+                        flag.file += 1;
+                    }
+                    else {
+                        // console.log(filename + ' : ' + s3name + ' = false');
+                        logger.info('Live content upload aws s3 to loss, file is ' + filename);
+                        uploadList.push(fileList[flag.file]);
+                        flag.file += 1;
+                    }
+                }
+                
+                if( uploadList.length == 0 ) {
+                    check_cb( 'not_loss' );
+                }
+                else {
+                    var uploadConsole = function(target, event){
+                        event.push(function(callback){ uploadAwsS3(target, callback); });
+                    };
+                    
+                    var execute = [];
+                    for(var i = 0, max = uploadList.length; i < max; i++) {
+                        uploadConsole(uploadList[i], execute);
+                    }
+                    
+                    async.series(execute, function(err, res){
+                        // (err)?console.dir(err):console.dir(res);
+                        check_cb( 're_upload' );
+                    });
+                    
+                }
+                
+            });
+        };
+        // checkUploadStaus();
         
     });
     
